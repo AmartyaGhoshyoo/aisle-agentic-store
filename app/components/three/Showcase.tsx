@@ -58,7 +58,7 @@ export default function Showcase({ onFront, className = "" }: { onFront: (i: num
     const turntable = new THREE.Group();
     scene.add(turntable);
     const shadowTex = shadowTexture();
-    const R = 2.5;
+    const R = 2.75;
     const items = SHOWCASE.map((id, i) => {
       const holder = new THREE.Group();
       const a = (i / SHOWCASE.length) * Math.PI * 2;
@@ -70,8 +70,10 @@ export default function Showcase({ onFront, className = "" }: { onFront: (i: num
       // Load the real model, then remember how far it reaches below its centre so it stands on the disc.
       loadProduct(id as ModelId).then((model) => {
         if (disposed) return;
-        inner.add(model);
+        // Measure before parenting, so the box is in the model's own space (not world space).
+        model.updateMatrixWorld(true);
         item.minY = new THREE.Box3().setFromObject(model).min.y;
+        inner.add(model);
       });
       const sh = new THREE.Mesh(new THREE.PlaneGeometry(1.6, 1.6), new THREE.MeshBasicMaterial({ map: shadowTex, transparent: true, depthWrite: false }));
       sh.rotation.x = -Math.PI / 2;
@@ -87,8 +89,8 @@ export default function Showcase({ onFront, className = "" }: { onFront: (i: num
       renderer.setSize(w, h, false);
       camera.aspect = w / h;
       const far = w / h < 1 ? 15 : 9.2;
-      camera.position.set(0, 2.1, far);
-      camera.lookAt(0, -0.35, 0);
+      camera.position.set(0, 3.1, far);
+      camera.lookAt(0, -0.55, 0);
       camera.updateProjectionMatrix();
     };
     resize();
@@ -142,8 +144,9 @@ export default function Showcase({ onFront, className = "" }: { onFront: (i: num
         const f = Math.max(0, z);
         const s = 1.05 + f * 0.35;
         it.model.scale.setScalar(s);
-        it.model.position.y = -1.05 - it.minY * s + 0.08 + (Math.sin(t * 1.4 + i) * 0.5 + 0.5) * 0.12 * f;
-        it.model.rotation.y = still ? 0 : Math.sin(t * 0.5 + i) * 0.5;
+        it.model.position.y = -1.04 - it.minY * s; // standing exactly on the disc
+        // Cancel the turntable's turn so every product faces the camera, with a gentle sway.
+        it.model.rotation.y = angle - it.a + 0.35 + (still ? 0 : Math.sin(t * 0.5 + i) * 0.3);
       });
       if (best !== front) {
         front = best;
