@@ -7,7 +7,7 @@ import { AISLES, CHANNELS, GUARDRAILS, LOOKS, MERCHANT, SITE, byId } from "../da
 import { openAssistant } from "./assistant/Assistant";
 import { Rise, RiseWords, Wrap, ease } from "./kit";
 import Bag from "./three/Bag";
-import { productShots, type ModelId } from "./three/products";
+import { MODEL_CREDITS, productShots, type ModelId } from "./three/products";
 
 /** Product "photos" rendered from the 3D models, once, in the browser. */
 function useShots() {
@@ -147,14 +147,14 @@ export function Aisles() {
 type Line = { who: "you" | "aisle"; text: string; pick?: string; drop?: number };
 const SCRIPT: Line[] = [
   { who: "you", text: "I'm running my first 10K next month. Gear me up — $350 max." },
-  { who: "aisle", text: "Three things matter for you: shoes for flat feet, a watch to pace you, and headphones that stay put." },
+  { who: "aisle", text: "Three things matter for you: shoes for flat feet, a watch to pace you, and water that stays cold." },
   { who: "aisle", text: "Stride Air, UK 9 wide — 86% sure on the size from your past orders.", pick: "p1", drop: 1 },
-  { who: "you", text: "Add a watch that syncs with them." },
-  { who: "aisle", text: "Pulse Fit pairs with the Stride app and tracks your sleep.", pick: "p3", drop: 2 },
-  { who: "you", text: "And headphones for the long runs." },
-  { who: "aisle", text: "Hush ANC — 38 h battery. With RUN10 your total is $315, under budget.", pick: "p2", drop: 3 },
+  { who: "you", text: "Add a watch to time my runs." },
+  { who: "aisle", text: "Atlas Chronograph — a stopwatch you can read mid-stride, water-proof to 200 m.", pick: "p3", drop: 2 },
+  { who: "you", text: "And a bottle for the long runs." },
+  { who: "aisle", text: "Trail Steel — cold for 24 h. With RUN10 your total is $302, under budget.", pick: "p9", drop: 3 },
 ];
-const BAG_ITEMS: ModelId[] = ["p1", "p3", "p2"];
+const BAG_ITEMS: ModelId[] = ["p1", "p3", "p9"];
 
 export function Ask() {
   const shots = useShots();
@@ -435,6 +435,19 @@ export function Finale() {
   );
 }
 
+function Credits() {
+  return (
+    <details className="relative inline-block">
+      <summary className="cursor-pointer list-none underline-offset-4 hover:underline">3D model credits</summary>
+      <ul className="absolute bottom-7 right-0 z-10 w-[min(26rem,85vw)] space-y-1 rounded-2xl bg-white p-4 text-left text-[0.8rem] text-plum/75 shadow-xl ring-1 ring-plum/10">
+        {MODEL_CREDITS.map((c) => (
+          <li key={c}>{c}</li>
+        ))}
+      </ul>
+    </details>
+  );
+}
+
 export function Footer() {
   return (
     <footer className="py-10">
@@ -445,7 +458,7 @@ export function Footer() {
             {SITE.by.name}
           </a>
         </p>
-        <p>Demo store · products modelled in 3D in your browser · no real payments</p>
+        <div>Demo store · no real payments · <Credits /></div>
       </Wrap>
     </footer>
   );

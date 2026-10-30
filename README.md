@@ -3,8 +3,8 @@
 A marketing + demo site for an agentic shopping product by Zovak. Say what you need; the agent
 finds three picks, compares them, gets your size right and fills the cart. You press pay.
 
-- **Products modelled in 3D in code** (sneaker, headphones, watch, sunglasses, tote, perfume —
-  `app/components/three/products.ts`); the same models are rendered into the product "photos"
+- **Realistic 3D product models** (free glTF: Khronos samples CC BY / CC0, Poly Haven CC0 — credits in
+  the footer), shrunk for the web; the same models are rendered into the product "photos"
 - **Hero turntable:** the products on a glossy pedestal — drag to spin; the one facing you is described
 - **Walk the aisles:** a sideways-scrolling gallery, one aisle per pick, with tilt-in-hand cards
 - **Ask:** a conversation builds as you scroll and each pick drops into a 3D shopping bag

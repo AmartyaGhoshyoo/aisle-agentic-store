@@ -4,7 +4,7 @@
 // and the bag gives a little bounce when each lands.
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
-import { buildProduct, disposeGroup, studioEnvironment, studioLights, type ModelId } from "./products";
+import { disposeOwned, loadProduct, studioEnvironment, studioLights, type ModelId } from "./products";
 
 export default function Bag({ items, count, className = "" }: { items: ModelId[]; count: number; className?: string }) {
   const host = useRef<HTMLDivElement>(null);
@@ -66,6 +66,7 @@ export default function Bag({ items, count, className = "" }: { items: ModelId[]
     floor.position.y = -1.0;
     scene.add(floor);
 
+    let disposed = false;
     // Products waiting above the bag
     const slots = [
       { x: -0.6, y: 1.55, z: 0, r: -0.35 },
@@ -73,9 +74,8 @@ export default function Bag({ items, count, className = "" }: { items: ModelId[]
       { x: 0.0, y: 2.05, z: 0.15, r: 0.08 },
     ];
     const drops = items.map((id, i) => {
-      const m = buildProduct(id);
       const holder = new THREE.Group();
-      holder.add(m);
+      loadProduct(id).then((m) => !disposed && holder.add(m));
       holder.scale.setScalar(0.75);
       holder.position.set(slots[i]!.x, 6, slots[i]!.z);
       holder.rotation.z = slots[i]!.r;
@@ -139,7 +139,8 @@ export default function Bag({ items, count, className = "" }: { items: ModelId[]
       cancelAnimationFrame(frame);
       window.removeEventListener("resize", resize);
       io.disconnect();
-      disposeGroup(scene);
+      disposed = true;
+      disposeOwned([bag, floor]);
       logoTex.dispose();
       scene.environment?.dispose();
       renderer.dispose();

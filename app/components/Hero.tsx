@@ -10,7 +10,7 @@ import { openAssistant } from "./assistant/Assistant";
 import Showcase from "./three/Showcase";
 import { Wrap, ease } from "./kit";
 
-const PROMPTS = ["Running shoes for flat feet, under $120", "A gift for my sister, around $80", "Noise-cancelling headphones for flights", "Swap my overshirt for a size up"];
+const PROMPTS = ["Running shoes for flat feet, under $120", "A gift for my sister, around $80", "A cabin case that fits my laptop", "Swap my overshirt for a size up"];
 
 export default function Hero() {
   const [front, setFront] = useState(0);
@@ -51,7 +51,7 @@ export default function Hero() {
         </motion.h1>
       </Wrap>
 
-      <motion.div initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1.4, delay: 0.25, ease }} className="relative mx-auto -mt-[4vh] h-[58vh] min-h-[380px] max-w-[1300px] md:h-[68vh]">
+      <motion.div initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1.4, delay: 0.25, ease }} className="relative mx-auto -mt-[4vh] h-[46vh] min-h-[340px] max-w-[1300px] md:h-[68vh]">
         <Showcase onFront={setFront} className="absolute inset-0" />
         <p className="pointer-events-none absolute bottom-3 left-1/2 flex -translate-x-1/2 items-center gap-2 text-[0.78rem] text-plum/50">
           <MoveHorizontal size={14} /> drag to spin

@@ -5,7 +5,7 @@
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
 import { SHOWCASE } from "../../data/site";
-import { buildProduct, disposeGroup, studioEnvironment, studioLights, type ModelId } from "./products";
+import { disposeOwned, loadProduct, studioEnvironment, studioLights, type ModelId } from "./products";
 
 function shadowTexture() {
   const c = document.createElement("canvas");
@@ -53,6 +53,8 @@ export default function Showcase({ onFront, className = "" }: { onFront: (i: num
     base.position.y = -1.55;
     scene.add(base);
 
+    let disposed = false;
+    const owned: THREE.Object3D[] = [pedestal, ring, base];
     const turntable = new THREE.Group();
     scene.add(turntable);
     const shadowTex = shadowTexture();
@@ -62,18 +64,22 @@ export default function Showcase({ onFront, className = "" }: { onFront: (i: num
       const a = (i / SHOWCASE.length) * Math.PI * 2;
       holder.position.set(Math.sin(a) * R, 0, Math.cos(a) * R);
       holder.rotation.y = a;
-      const model = buildProduct(id as ModelId);
-      // Remember how far the model reaches below its centre so it can stand on the disc.
-      const minY = new THREE.Box3().setFromObject(model).min.y;
       const inner = new THREE.Group();
-      inner.add(model);
       holder.add(inner);
+      const item = { holder, model: inner, minY: -1, a };
+      // Load the real model, then remember how far it reaches below its centre so it stands on the disc.
+      loadProduct(id as ModelId).then((model) => {
+        if (disposed) return;
+        inner.add(model);
+        item.minY = new THREE.Box3().setFromObject(model).min.y;
+      });
       const sh = new THREE.Mesh(new THREE.PlaneGeometry(1.6, 1.6), new THREE.MeshBasicMaterial({ map: shadowTex, transparent: true, depthWrite: false }));
       sh.rotation.x = -Math.PI / 2;
       sh.position.y = -1.04;
       holder.add(sh);
       turntable.add(holder);
-      return { holder, model: inner, minY, a };
+      owned.push(sh);
+      return item;
     });
 
     const resize = () => {
@@ -134,7 +140,7 @@ export default function Showcase({ onFront, className = "" }: { onFront: (i: num
           best = i;
         }
         const f = Math.max(0, z);
-        const s = 0.82 + f * 0.3;
+        const s = 1.05 + f * 0.35;
         it.model.scale.setScalar(s);
         it.model.position.y = -1.05 - it.minY * s + 0.08 + (Math.sin(t * 1.4 + i) * 0.5 + 0.5) * 0.12 * f;
         it.model.rotation.y = still ? 0 : Math.sin(t * 0.5 + i) * 0.5;
@@ -160,7 +166,8 @@ export default function Showcase({ onFront, className = "" }: { onFront: (i: num
       el.removeEventListener("pointerup", up);
       el.removeEventListener("pointercancel", up);
       io.disconnect();
-      disposeGroup(scene);
+      disposed = true;
+      disposeOwned(owned);
       shadowTex.dispose();
       scene.environment?.dispose();
       renderer.dispose();

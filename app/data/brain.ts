@@ -7,7 +7,7 @@ const pick = (...ids: string[]) => PRODUCTS.filter((p) => ids.includes(p.id));
 
 export const BRAIN: Brain = {
   name: "Aisle",
-  voiceHint: "Try: “Running shoes under $120”, “Compare the two headphones” or “Where is my order?”.",
+  voiceHint: "Try: “Running shoes under $120”, “Compare the two speakers” or “Where is my order?”.",
   greeting: {
     text: "Hi, I'm Aisle — your shopping agent. Tell me what you need in your own words and I'll find, compare, size and cart it. You always press pay.",
     quick: ["Running shoes under $120", "A gift for my sister, $50", "Where is my order?"],
@@ -35,22 +35,22 @@ export const BRAIN: Brain = {
       };
     if (/(compare|vs|versus|difference|which one)/.test(t))
       return {
-        text: "Here's how the two headphones compare on what you mentioned — commute and battery. I'd pick Hush for the longer battery.",
+        text: "Here's how the two speakers compare on what you mentioned — sound and battery. I'd pick the Boom Retro for the bigger sound.",
         cards: [
           {
             kind: "compare",
-            a: "Hush ANC",
-            b: "Echo Lite",
+            a: "Boom Retro",
+            b: "Echo Mini",
             rows: [
-              { label: "Price", a: "$149", b: "$119" },
-              { label: "Battery", a: "38 h", b: "24 h" },
-              { label: "Noise cancelling", a: "Strong", b: "Medium" },
+              { label: "Price", a: "$149", b: "$99" },
+              { label: "Battery", a: "24 h", b: "12 h" },
+              { label: "Sound", a: "Room-filling", b: "Desk-size" },
               { label: "Arrives", a: "Thu", b: "Fri" },
               { label: "Reviewers say", a: "“Light, great on flights”", b: "“Tight after 2 h”" },
             ],
           },
         ],
-        quick: ["Add Hush to cart", "Watch Hush for a price drop"],
+        quick: ["Add Boom to cart", "Watch Boom for a price drop"],
       };
     if (/(shoe|run|sneaker|trainer|flat feet)/.test(t))
       return {
@@ -67,11 +67,11 @@ export const BRAIN: Brain = {
         ],
         quick: ["What size should I get?", "Add the Stride Air", "Compare Stride and Cloudline"],
       };
-    if (/(headphone|earbud|audio|music)/.test(t))
+    if (/(speaker|headphone|audio|music|sound)/.test(t))
       return {
-        text: "For commuting I'd look at these two. Want them side by side?",
-        cards: [{ kind: "products", items: [PRODUCTS[1]!, { id: "h2", name: "Echo Lite", price: "$119", note: "24 h battery", icon: "headphones", tone: TONES.lilac }] }],
-        quick: ["Compare them", "Add Hush to cart"],
+        text: "For music on the go I'd look at these two. Want them side by side?",
+        cards: [{ kind: "products", items: [PRODUCTS[1]!, { id: "h2", name: "Echo Mini", price: "$99", note: "12 h battery", icon: "headphones", tone: TONES.lilac }] }],
+        quick: ["Compare them", "Add Boom to cart"],
       };
     if (/(gift|present|birthday|sister|mom|friend)/.test(t))
       return {
@@ -93,13 +93,13 @@ export const BRAIN: Brain = {
       };
     if (/(deal|discount|sale|cheaper|price drop|watch)/.test(t))
       return {
-        text: "I'll watch it. Hush ANC has dropped to $129 twice in the last 3 months — I'll message you the moment it does again.",
-        cards: [{ kind: "proposal", title: "Price alert: Hush ANC ≤ $129", detail: "WhatsApp + email. Auto-expires in 60 days.", confirm: "Turn on alert", done: "Alert on. I'll tell you when it drops." }],
+        text: "I'll watch it. The Boom Retro has dropped to $129 twice in the last 3 months — I'll message you the moment it does again.",
+        cards: [{ kind: "proposal", title: "Price alert: Boom Retro ≤ $129", detail: "WhatsApp + email. Auto-expires in 60 days.", confirm: "Turn on alert", done: "Alert on. I'll tell you when it drops." }],
       };
     if (/(hello|hi|hey|good)/.test(t)) return BRAIN.greeting;
     return {
       text: "In this demo I can find products, compare them, recommend a size, fill your cart, track orders and handle returns. What are you shopping for?",
-      quick: ["Running shoes under $120", "Compare headphones", "Return something"],
+      quick: ["Running shoes under $120", "Compare speakers", "Return something"],
     };
   },
 };
