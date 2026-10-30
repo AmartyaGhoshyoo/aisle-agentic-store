@@ -1,5 +1,5 @@
 import Hero from "./components/Hero";
-import { Aisles, Ask, Brands, Finale, Footer, Nav, Stylist, Trust } from "./components/Sections";
+import { Ask, Categories, Brands, Finale, Footer, Nav, Stylist, Trust } from "./components/Sections";
 
 export default function Home() {
   return (
@@ -7,7 +7,7 @@ export default function Home() {
       <Nav />
       <main>
         <Hero />
-        <Aisles />
+        <Categories />
         <Ask />
         <Stylist />
         <Brands />

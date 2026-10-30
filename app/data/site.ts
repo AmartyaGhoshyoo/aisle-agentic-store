@@ -29,19 +29,8 @@ export const PRODUCTS = [
   { id: "p9", name: "Trail Steel Bottle", price: "$34", note: "Cold for 24 h", icon: "package", tone: TONES.peach },
 ];
 
-// The 3D-modelled products (see components/three/products.ts), in showcase order.
-export const SHOWCASE = ["p1", "p3", "p5", "p2", "p7", "p9"] as const;
 export const byId = (id: string) => PRODUCTS.find((p) => p.id === id)!;
 
-// One "aisle" per product in the sideways gallery: the agent's reason to pick it.
-export const AISLES = [
-  { id: "p1", aisle: "Run", why: "412 reviewers with flat feet call it ‘the one that saved my knees’. Wide fit, firm arch — and it comes in three colours." },
-  { id: "p3", aisle: "Time", why: "A real chronograph with a sapphire crystal; reviewers say it still looks sharp after two years of daily wear." },
-  { id: "p5", aisle: "Shade", why: "Polarised lenses at 26 g. Shoppers with narrow faces rate the fit 4.8★." },
-  { id: "p2", aisle: "Sound", why: "Retro looks, 24-hour battery and a big warm sound for its size — the most gifted speaker this month." },
-  { id: "p7", aisle: "Carry", why: "Full-grain leather, cabin size, and it fits a 14-inch laptop. Ages beautifully, say 300+ reviews." },
-  { id: "p9", aisle: "Hydrate", why: "Steel, leak-proof, cold for 24 hours; the runners' favourite add-on at checkout." },
-] as const;
 
 // The stylist's looks: three products each.
 export const LOOKS = [
@@ -128,3 +117,67 @@ export const GUARDRAILS = [
 ];
 
 export const CHANNELS = ["Website chat", "Voice", "WhatsApp", "Instagram DM", "Email", "Phone"];
+
+// ── Marketplace catalogue (demo): categories shown on the 3D catalogue drum and the category grid.
+export const CATEGORIES = [
+  { key: "mobiles", name: "Mobiles", icon: "smartphone", count: "24,310", tone: "linear-gradient(135deg,#c7d2fe,#4338ca)", ask: "Best camera phone under $400", items: [["Nova 12 Pro", "$399"], ["Pixelite 8", "$349"], ["Orbit S5", "$279"], ["Zen X", "$519"]] },
+  { key: "laptops", name: "Laptops", icon: "laptop", count: "8,902", tone: "linear-gradient(135deg,#bae6fd,#0369a1)", ask: "A light laptop for college", items: [["Folio 14", "$899"], ["AirBook 13", "$999"], ["Volt 15", "$749"], ["Studio 16", "$1,499"]] },
+  { key: "shoes", name: "Footwear", icon: "footprints", count: "61,544", tone: "linear-gradient(135deg,#f9a8d4,#be185d)", ask: "Running shoes for flat feet", items: [["Stride Air", "$112"], ["Cloudline 3", "$104"], ["Tempo Lite", "$96"], ["Trail Grip", "$128"]] },
+  { key: "fashion", name: "Fashion", icon: "shirt", count: "312,880", tone: "linear-gradient(135deg,#fecdd3,#e11d48)", ask: "Linen shirt for a beach wedding", items: [["Linen Overshirt", "$58"], ["Oxford Tee", "$24"], ["Wrap Dress", "$72"], ["Chino Slim", "$49"]] },
+  { key: "watches", name: "Watches", icon: "watch", count: "9,410", tone: "linear-gradient(135deg,#a7f3d0,#047857)", ask: "Smartwatch that tracks sleep", items: [["Atlas Chrono", "$189"], ["Pulse Fit", "$89"], ["Tide 40", "$149"], ["Halo Mini", "$69"]] },
+  { key: "audio", name: "Audio", icon: "headphones", count: "15,207", tone: "linear-gradient(135deg,#ddd6fe,#6d28d9)", ask: "Noise-cancelling headphones for flights", items: [["Hush ANC", "$149"], ["Boom Retro", "$149"], ["Echo Buds", "$79"], ["Bass Bar", "$199"]] },
+  { key: "tv", name: "TVs", icon: "tv", count: "3,118", tone: "linear-gradient(135deg,#cbd5e1,#334155)", ask: "55-inch TV for a bright room", items: [["Vista 55 QLED", "$549"], ["Lumen 43", "$329"], ["Cine 65", "$899"], ["Frame 50", "$699"]] },
+  { key: "home", name: "Furniture", icon: "sofa", count: "41,762", tone: "linear-gradient(135deg,#fde68a,#b45309)", ask: "A small sofa for a studio flat", items: [["Nook 2-Seater", "$420"], ["Loft Chair", "$180"], ["Fold Daybed", "$360"], ["Oak Side Table", "$90"]] },
+  { key: "kitchen", name: "Kitchen", icon: "cookingpot", count: "27,035", tone: "linear-gradient(135deg,#fed7aa,#c2410c)", ask: "Air fryer for a family of four", items: [["Crisp 6L", "$89"], ["Duo Pot", "$69"], ["Brew One", "$49"], ["Chef Knife", "$39"]] },
+  { key: "appliances", name: "Appliances", icon: "refrigerator", count: "6,543", tone: "linear-gradient(135deg,#e0f2fe,#0e7490)", ask: "Quiet fridge under $600", items: [["Frost 320L", "$579"], ["Wash 8kg", "$449"], ["Cool Split AC", "$499"], ["Mist Purifier", "$159"]] },
+  { key: "beauty", name: "Beauty", icon: "sparkles", count: "58,221", tone: "linear-gradient(135deg,#fbcfe8,#db2777)", ask: "Sunscreen for oily skin", items: [["Glow SPF 50", "$18"], ["Nuit Parfum", "$82"], ["Dew Serum", "$26"], ["Matte Tint", "$14"]] },
+  { key: "grocery", name: "Grocery", icon: "apple", count: "19,860", tone: "linear-gradient(135deg,#bbf7d0,#15803d)", ask: "Weekly groceries for two, vegetarian", items: [["Organic Basket", "$42"], ["Basmati 5kg", "$16"], ["Cold Brew 6", "$12"], ["Nut Mix 1kg", "$19"]] },
+  { key: "toys", name: "Toys", icon: "toybrick", count: "22,904", tone: "linear-gradient(135deg,#fef08a,#ca8a04)", ask: "Gift for a 6-year-old who loves building", items: [["Brick City 900", "$59"], ["Robo Kit", "$45"], ["Marble Run", "$34"], ["Space Lander", "$39"]] },
+  { key: "sports", name: "Sports", icon: "dumbbell", count: "17,388", tone: "linear-gradient(135deg,#99f6e4,#0f766e)", ask: "Home gym setup under $300", items: [["Adjust Bells", "$199"], ["Yoga Mat Pro", "$39"], ["Trail Bottle", "$34"], ["Bike Trainer", "$249"]] },
+  { key: "books", name: "Books", icon: "bookopen", count: "1.2M", tone: "linear-gradient(135deg,#e9d5ff,#7e22ce)", ask: "A thriller like Gone Girl", items: [["The Quiet Lake", "$14"], ["Atomic Days", "$18"], ["Map of Salt", "$16"], ["Night Train", "$12"]] },
+  { key: "cameras", name: "Cameras", icon: "camera", count: "4,207", tone: "linear-gradient(135deg,#fecaca,#991b1b)", ask: "Beginner camera for travel vlogs", items: [["Snap M50", "$649"], ["Action 4K", "$249"], ["Instax Go", "$89"], ["Prime 35mm", "$399"]] },
+] as const;
+
+// The demo searches the hero runs (and you can pick): what was asked, where it looked, three picks.
+export const SEARCHES = [
+  {
+    q: "Phone with the best camera under $400",
+    cat: "mobiles",
+    scanned: "2,431 phones",
+    picks: [
+      { name: "Nova 12 Pro", price: "$399", why: "Top low-light score in its price; 4.6★ from 12k reviews" },
+      { name: "Pixelite 8", price: "$349", why: "Best video stabilisation under $400" },
+      { name: "Orbit S5", price: "$279", why: "Great main camera, saves you $120" },
+    ],
+  },
+  {
+    q: "Running shoes for flat feet, before Saturday",
+    cat: "shoes",
+    scanned: "6,180 running shoes",
+    picks: [
+      { name: "Stride Air", price: "$112", why: "Firm arch, wide fit — UK 9 from your history" },
+      { name: "Cloudline 3", price: "$104", why: "Stable midsole, arrives Thursday" },
+      { name: "Trail Grip", price: "$128", why: "If you run on rough paths too" },
+    ],
+  },
+  {
+    q: "A small sofa for a studio flat",
+    cat: "home",
+    scanned: "3,902 sofas",
+    picks: [
+      { name: "Nook 2-Seater", price: "$420", why: "142 cm wide — fits under a 150 cm window" },
+      { name: "Fold Daybed", price: "$360", why: "Sofa by day, guest bed by night" },
+      { name: "Loft Chair", price: "$180", why: "If you only need one seat" },
+    ],
+  },
+  {
+    q: "Gift for a 6-year-old who loves building",
+    cat: "toys",
+    scanned: "4,766 toys",
+    picks: [
+      { name: "Brick City 900", price: "$59", why: "Age 6+, most re-bought building set" },
+      { name: "Marble Run", price: "$34", why: "Builds and moves — parents rate it 4.8★" },
+      { name: "Robo Kit", price: "$45", why: "First coding, no screen needed" },
+    ],
+  },
+] as const;

@@ -5,8 +5,9 @@ finds three picks, compares them, gets your size right and fills the cart. You p
 
 - **Realistic 3D product models** (free glTF: Khronos samples CC BY / CC0, Poly Haven CC0 — credits in
   the footer), shrunk for the web; the same models are rendered into the product "photos"
-- **Hero turntable:** the products on a glossy pedestal — drag to spin; the one facing you is described
-- **Walk the aisles:** a sideways-scrolling gallery, one aisle per pick, with tilt-in-hand cards
+- **Marketplace hero:** the whole catalogue turns on a 3D drum behind one question box; the agent scans it,
+  lights up the matching products and slides up three picks (16 departments, Flipkart-style)
+- **Categories:** a bento grid of departments, each with a question the agent can answer
 - **Ask:** a conversation builds as you scroll and each pick drops into a 3D shopping bag
 - **Stylist:** pick a moment (Run club, Weekend away…) and the look assembles itself
 - **For brands:** the store owner's copilot with an approvals queue

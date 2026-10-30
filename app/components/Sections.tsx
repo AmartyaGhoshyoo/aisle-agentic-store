@@ -1,9 +1,10 @@
 "use client";
 
-import { ReactNode, useEffect, useLayoutEffect, useRef, useState } from "react";
-import { AnimatePresence, animate, motion, useInView, useMotionValueEvent, useScroll, useSpring, useTransform } from "motion/react";
-import { ArrowRight, Check, ShieldCheck, Sparkles } from "lucide-react";
-import { AISLES, CHANNELS, GUARDRAILS, LOOKS, MERCHANT, SITE, byId } from "../data/site";
+import { useEffect, useRef, useState } from "react";
+import { AnimatePresence, animate, motion, useInView, useMotionValueEvent, useScroll, useTransform } from "motion/react";
+import { Check, ShieldCheck, Sparkles } from "lucide-react";
+import { CATEGORIES, CHANNELS, GUARDRAILS, LOOKS, MERCHANT, SITE, byId } from "../data/site";
+import { CAT_ICONS } from "./catIcons";
 import { openAssistant } from "./assistant/Assistant";
 import { Rise, RiseWords, Wrap, ease } from "./kit";
 import Bag from "./three/Bag";
@@ -44,7 +45,7 @@ export function Nav() {
           aisle<span className="text-berry">.</span>
         </a>
         <nav className="hidden gap-8 text-[0.95rem] text-plum/70 md:flex">
-          <a href="#aisles" className="hover:text-plum">Shop</a>
+          <a href="#categories" className="hover:text-plum">Categories</a>
           <a href="#ask" className="hover:text-plum">Ask</a>
           <a href="#stylist" className="hover:text-plum">Stylist</a>
           <a href="#brands" className="hover:text-plum">For brands</a>
@@ -57,88 +58,42 @@ export function Nav() {
   );
 }
 
-// ── Aisles: a sideways gallery driven by vertical scroll ─────────────────────
-const AISLE_BG = ["#fce7f3", "#ede9fe", "#d1fae5", "#e0e7ff", "#dcfce7", "#ffe4e6"];
-
-function TiltCard({ children }: { children: ReactNode }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const rx = useSpring(0, { stiffness: 150, damping: 15 }), ry = useSpring(0, { stiffness: 150, damping: 15 });
+// ── Categories: the whole store, each with a question the agent can answer ──
+export function Categories() {
   return (
-    <motion.div
-      ref={ref}
-      onPointerMove={(e) => {
-        const r = ref.current!.getBoundingClientRect();
-        ry.set(((e.clientX - r.left) / r.width - 0.5) * 18);
-        rx.set(-((e.clientY - r.top) / r.height - 0.5) * 18);
-      }}
-      onPointerLeave={() => (rx.set(0), ry.set(0))}
-      style={{ rotateX: rx, rotateY: ry, transformPerspective: 900 }}
-    >
-      {children}
-    </motion.div>
-  );
-}
-
-export function Aisles() {
-  const shots = useShots();
-  const section = useRef<HTMLElement>(null);
-  const track = useRef<HTMLDivElement>(null);
-  const [dist, setDist] = useState(0);
-  useLayoutEffect(() => {
-    const m = () => setDist(Math.max(0, (track.current?.scrollWidth ?? 0) - window.innerWidth));
-    m();
-    window.addEventListener("resize", m);
-    return () => window.removeEventListener("resize", m);
-  }, []);
-  const { scrollYProgress } = useScroll({ target: section, offset: ["start start", "end end"] });
-  const x = useTransform(scrollYProgress, [0, 1], [0, -dist]);
-  const bar = useTransform(scrollYProgress, [0, 1], ["0%", "100%"]);
-
-  return (
-    <section id="aisles" ref={section} className="relative" style={{ height: `calc(100vh + ${dist}px)` }}>
-      <div className="sticky top-0 flex h-screen flex-col justify-center overflow-hidden">
-        <Wrap className="mb-6 flex items-end justify-between gap-6">
-          <h2 className="font-display text-[clamp(2.4rem,5vw,4.4rem)] leading-[0.95]">
-            Walk the <em className="text-berry">aisles.</em>
+    <section id="categories" className="relative py-24">
+      <Wrap>
+        <div className="flex flex-wrap items-end justify-between gap-6">
+          <h2 className="max-w-[40rem] font-display text-[clamp(2.4rem,5vw,4.4rem)] leading-[0.95]">
+            Every aisle. <em className="text-berry">One assistant.</em>
           </h2>
-          <p className="hidden max-w-[22rem] text-plum/60 md:block">Every aisle has one pick the agent stands behind — and says why. Hover to turn it in your hand.</p>
-        </Wrap>
-        <motion.div ref={track} style={{ x }} className="flex w-max gap-5 px-5 sm:px-8 lg:px-[max(2rem,calc((100vw-1240px)/2+2rem))]">
-          {AISLES.map((a, i) => {
-            const p = byId(a.id);
+          <p className="max-w-[24rem] text-plum/60">Phones to groceries — 16 departments, millions of products. Tap a question to see how Aisle shops each one.</p>
+        </div>
+        <div className="mt-12 grid grid-cols-2 gap-3 md:grid-cols-4 lg:grid-cols-6">
+          {CATEGORIES.map((c, i) => {
+            const Icon = CAT_ICONS[c.icon] ?? Sparkles;
+            const big = i === 0 || i === 3 || i === 7 || i === 12;
             return (
-              <article key={a.id} className="relative flex h-[66vh] min-h-[430px] w-[84vw] shrink-0 flex-col overflow-hidden rounded-[2rem] p-6 sm:w-[52vw] lg:w-[38vw] lg:p-8" style={{ background: AISLE_BG[i] }}>
-                <span className="pointer-events-none absolute -right-4 top-2 select-none font-display text-[clamp(6rem,14vw,12rem)] italic leading-none text-white/70">{a.aisle}</span>
-                <p className="relative text-[0.75rem] font-medium uppercase tracking-[0.3em] text-plum/50">
-                  Aisle 0{i + 1} · {a.aisle}
-                </p>
-                <div className="relative flex flex-1 items-center justify-center">
-                  <TiltCard>
-                    <Shot id={a.id} shots={shots} className="h-[30vh] min-h-[200px] w-[30vh] min-w-[200px] drop-shadow-[0_30px_30px_rgba(91,18,56,0.25)]" />
-                  </TiltCard>
-                </div>
-                <div className="relative flex items-end justify-between gap-4">
-                  <div>
-                    <p className="font-display text-[1.7rem] italic leading-tight">{p.name}</p>
-                    <p className="mt-1 max-w-[24rem] text-[0.92rem] text-plum/65">{a.why}</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-display text-[1.6rem] text-berry">{p.price}</p>
-                    <button onClick={() => openAssistant("chat", `Tell me about the ${p.name}`)} className="mt-1 inline-flex min-h-[40px] cursor-pointer items-center gap-1 rounded-full bg-plum px-4 text-[0.85rem] text-white">
-                      Ask <ArrowRight size={14} />
-                    </button>
-                  </div>
-                </div>
-              </article>
+              <Rise key={c.key} delay={(i % 6) * 0.05} className={big ? "col-span-2 row-span-2" : ""}>
+                <motion.button
+                  whileHover={{ y: -6 }}
+                  onClick={() => openAssistant("chat", c.ask)}
+                  className="group relative flex h-full min-h-[9.5rem] w-full cursor-pointer flex-col overflow-hidden rounded-3xl p-4 text-left text-white"
+                  style={{ background: c.tone }}
+                >
+                  <Icon className={`absolute -bottom-4 -right-4 opacity-25 transition-transform duration-700 group-hover:-rotate-12 group-hover:scale-110 ${big ? "h-48 w-48" : "h-24 w-24"}`} strokeWidth={1.2} />
+                  <span className="grid h-10 w-10 place-items-center rounded-2xl bg-white/20 backdrop-blur">
+                    <Icon size={20} />
+                  </span>
+                  <span className={`mt-auto font-display leading-none ${big ? "text-[2.2rem]" : "text-[1.35rem]"}`}>{c.name}</span>
+                  <span className="mt-1 text-[0.78rem] text-white/80">{c.count} products</span>
+                  {big && <span className="mt-3 w-fit rounded-full bg-white/90 px-3 py-1.5 text-[0.82rem] text-plum">“{c.ask}” →</span>}
+                </motion.button>
+              </Rise>
             );
           })}
-        </motion.div>
-        <Wrap className="mt-6">
-          <div className="h-[2px] overflow-hidden rounded-full bg-plum/10">
-            <motion.div style={{ width: bar }} className="h-full bg-berry" />
-          </div>
-        </Wrap>
-      </div>
+        </div>
+      </Wrap>
     </section>
   );
 }
