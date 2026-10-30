@@ -41,7 +41,8 @@ body {
   font-family: var(--font-body-face), system-ui, sans-serif;
 }
 .font-display {
-  letter-spacing: -0.03em;
+  letter-spacing: -0.01em;
+  font-weight: 500;
 }
 ::selection {
   background: rgba(190, 24, 93, 0.2);

@@ -3,10 +3,15 @@
 A marketing + demo site for an agentic shopping product by Zovak. Say what you need; the agent
 finds three picks, compares them, gets your size right and fills the cart. You press pay.
 
-- **3D agent orb** (three.js shader) with the catalogue orbiting it; scrolling pulls out three picks
-- **Pinned scroll story:** intent → picks → compare → size → pay → order care, in a phone mock
-- **Store copilot section** for merchants: listings, cart recovery, stock forecast, review insights
-- **Chat + voice assistant** (Zovak web widget) in demo mode with a sample catalogue
+- **Products modelled in 3D in code** (sneaker, headphones, watch, sunglasses, tote, perfume —
+  `app/components/three/products.ts`); the same models are rendered into the product "photos"
+- **Hero turntable:** the products on a glossy pedestal — drag to spin; the one facing you is described
+- **Walk the aisles:** a sideways-scrolling gallery, one aisle per pick, with tilt-in-hand cards
+- **Ask:** a conversation builds as you scroll and each pick drops into a 3D shopping bag
+- **Stylist:** pick a moment (Run club, Weekend away…) and the look assembles itself
+- **For brands:** the store owner's copilot with an approvals queue
+- **Chat + voice assistant** (Zovak web widget) in demo mode
+- Blush + berry + emerald; Bodoni Moda + Jost
 
 ## Run
 

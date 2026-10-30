@@ -1,11 +1,11 @@
 import type { Metadata, Viewport } from "next";
-import { Manrope, Syne } from "next/font/google";
+import { Bodoni_Moda, Jost } from "next/font/google";
 import "./globals.css";
 import Providers from "./components/Providers";
 import Agent from "./components/Agent";
 
-const display = Syne({ subsets: ["latin"], variable: "--font-display-face", display: "swap" });
-const body = Manrope({ subsets: ["latin"], variable: "--font-body-face", display: "swap" });
+const display = Bodoni_Moda({ subsets: ["latin"], style: ["normal", "italic"], variable: "--font-display-face", display: "swap" });
+const body = Jost({ subsets: ["latin"], variable: "--font-body-face", display: "swap" });
 
 export const metadata: Metadata = {
   title: "Aisle — the store that shops with you",
@@ -16,8 +16,8 @@ export const viewport: Viewport = { themeColor: "#fdf2f8" };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${display.variable} ${body.variable}`}>
-      <body className="antialiased">
+    <html lang="en" suppressHydrationWarning className={`${display.variable} ${body.variable}`}>
+      <body className="antialiased" suppressHydrationWarning>
         <Providers>{children}</Providers>
         <Agent />
       </body>

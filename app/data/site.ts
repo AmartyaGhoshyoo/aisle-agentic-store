@@ -22,11 +22,35 @@ export const PRODUCTS = [
   { id: "p2", name: "Hush ANC Headphones", price: "$149", note: "38 h battery", icon: "headphones", tone: TONES.ink },
   { id: "p3", name: "Pulse Fit Watch", price: "$89", note: "Sleep + GPS", icon: "watch", tone: TONES.mint },
   { id: "p4", name: "Linen Overshirt", price: "$58", note: "Runs small", icon: "shirt", tone: TONES.peach },
-  { id: "p5", name: "Halo Sunglasses", price: "$74", note: "Polarised", icon: "glasses", tone: TONES.sky },
-  { id: "p6", name: "Folio 14 Laptop", price: "$899", note: "1.2 kg · 18 h", icon: "laptop", tone: TONES.lilac },
-  { id: "p7", name: "Weekender Tote", price: "$66", note: "Recycled canvas", icon: "bag", tone: TONES.mint },
+  { id: "p5", name: "Halo Sunglasses", price: "$74", note: "Polarised", icon: "glasses", tone: TONES.lilac },
+  { id: "p6", name: "Folio 14 Laptop", price: "$899", note: "1.2 kg · 18 h", icon: "laptop", tone: TONES.sky },
+  { id: "p7", name: "Verde Leather Tote", price: "$128", note: "Fits a 14\" laptop", icon: "bag", tone: TONES.mint },
   { id: "p8", name: "Gift Box Trio", price: "$45", note: "Wrapped free", icon: "package", tone: TONES.berry },
+  { id: "p9", name: "Nuit Eau de Parfum", price: "$82", note: "Rose · oud · 50 ml", icon: "package", tone: TONES.peach },
 ];
+
+// The 3D-modelled products (see components/three/products.ts), in showcase order.
+export const SHOWCASE = ["p1", "p2", "p3", "p5", "p7", "p9"] as const;
+export const byId = (id: string) => PRODUCTS.find((p) => p.id === id)!;
+
+// One "aisle" per product in the sideways gallery: the agent's reason to pick it.
+export const AISLES = [
+  { id: "p1", aisle: "Run", why: "412 reviewers with flat feet call it ‘the one that saved my knees’. Wide fit, firm arch." },
+  { id: "p2", aisle: "Sound", why: "Best noise-cancelling under $150 for flights; 38 hours means one charge a week." },
+  { id: "p3", aisle: "Time", why: "Sleep tracking that reviewers trust, GPS for runs, and it pairs with the Stride Air app." },
+  { id: "p5", aisle: "Shade", why: "Polarised lenses, 26 g. Shoppers with narrow faces rate the fit 4.8★." },
+  { id: "p7", aisle: "Carry", why: "Full-grain leather that fits a 14-inch laptop — the most-gifted item this month." },
+  { id: "p9", aisle: "Scent", why: "Rose and oud that lasts 8+ hours; the 50 ml is the size most buyers reorder." },
+] as const;
+
+// The stylist's looks: three products each.
+export const LOOKS = [
+  { name: "Run club", ids: ["p1", "p3", "p2"], line: "Light, fast, everything synced." },
+  { name: "Weekend away", ids: ["p7", "p5", "p9"], line: "One bag, sunglasses, a scent for the evening." },
+  { name: "Commute", ids: ["p2", "p7", "p3"], line: "Quiet train, laptop in leather, on time." },
+  { name: "Gift for her", ids: ["p9", "p5", "p7"], line: "Wrapped free, arrives Thursday." },
+] as const;
+
 
 // One shopping trip, from a sentence to a delivered (or returned) order.
 export const CHAPTERS = [
