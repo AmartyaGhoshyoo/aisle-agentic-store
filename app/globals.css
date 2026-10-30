@@ -1,0 +1,88 @@
+@import "tailwindcss";
+
+@theme inline {
+  /* Aisle: blush paper, deep berry, emerald for "good" and money-safe states. */
+  --color-blush: #fdf2f8;
+  --color-petal: #fce7f3;
+  --color-card: #ffffff;
+  --color-plum: #2a0f1f;
+  --color-berry: #be185d;
+  --color-emerald: #059669;
+  --color-lilac: #7c3aed;
+  --font-sans: var(--font-body-face), system-ui, sans-serif;
+  --font-display: var(--font-display-face), system-ui, sans-serif;
+}
+
+:root {
+  --accent-ink: #be185d;
+  /* Assistant widget */
+  --w-bg: #fffafd;
+  --w-surface: #fce7f3;
+  --w-ink: #2a0f1f;
+  --w-muted: rgba(42, 15, 31, 0.6);
+  --w-line: rgba(42, 15, 31, 0.12);
+  --w-accent: #be185d;
+  --w-on-accent: #ffffff;
+  --w-accent-ink: #be185d;
+  --w-ok: #059669;
+  --w-warn: #e11d48;
+  --w-orb-a: #f472b6;
+  --w-orb-b: #7c3aed;
+  --w-font: var(--font-body-face), system-ui, sans-serif;
+}
+
+html {
+  background: #fdf2f8;
+  overflow-x: clip;
+}
+body {
+  background: #fdf2f8;
+  color: #2a0f1f;
+  font-family: var(--font-body-face), system-ui, sans-serif;
+}
+.font-display {
+  letter-spacing: -0.03em;
+}
+::selection {
+  background: rgba(190, 24, 93, 0.2);
+}
+
+/* Liquid glass on a light page: bright rim, soft berry tint. */
+.glass {
+  background: linear-gradient(140deg, rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.45) 50%, rgba(252, 231, 243, 0.55));
+  backdrop-filter: blur(16px) saturate(170%);
+  -webkit-backdrop-filter: blur(16px) saturate(170%);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  box-shadow:
+    inset 0 1px 0 #fff,
+    0 24px 60px -28px rgba(124, 22, 72, 0.35);
+}
+
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis:not(.lenis-autoToggle).lenis-stopped {
+  overflow: clip;
+}
+.lenis [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+@keyframes float {
+  50% { transform: translateY(-8px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
