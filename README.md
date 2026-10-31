@@ -20,8 +20,7 @@ finds three picks, compares them, gets your size right and fills the cart. You p
 
 All products live in `app/data/shop.ts` (one row each: id, name, brand, price, MRP, rating, reviews,
 photo, note). Photos are 800×800 WebP in `public/products/<dept>/`. To add one: put a square photo there
-and add a row. Credits: photos are from Unsplash (Unsplash License); 3D models are listed in
-`app/components/three/products.ts` and in the footer.
+and add a row. Credits: photos are from Unsplash (Unsplash License), listed in the footer.
 
 ## Run
 
