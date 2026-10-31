@@ -1,101 +1,572 @@
 "use client";
 
-// The storefront: 3D showroom hero, promo banners, departments, today's deals and the full
-// catalogue with filters and sorting.
+// The storefront: a calm hero, the agent workstation (ask → search → compare → cart → you
+// confirm), one compact shelf per department with "View all", and three promo banners.
 import { useEffect, useMemo, useRef, useState } from "react";
-import { AnimatePresence, motion, useMotionValue, useScroll, useSpring, useTransform } from "motion/react";
-import { ArrowRight, Box, ChevronLeft, ChevronRight, SlidersHorizontal, Sparkles, Timer, X } from "lucide-react";
-import { DEALS, DEPTS, ITEMS, money, off, type DeptKey } from "../../data/shop";
+import { AnimatePresence, motion, useScroll, useTransform } from "motion/react";
+import { ArrowRight, Check, ChevronLeft, ChevronRight, Clock, Search, ShieldCheck, ShoppingBag, Sparkles, Tag, Truck, X } from "lucide-react";
+import { DEALS, DEPTS, ITEMS, item, money, off, type Item } from "../../data/shop";
 import { openAssistant } from "../assistant/Assistant";
 import { CAT_ICONS } from "../catIcons";
-import { Rise, Wrap, ease } from "../kit";
-import type { ModelId } from "../three/products";
-import ProductCard, { Thumb } from "./ProductCard";
-import Showroom from "./Showroom";
+import { Wrap, ease } from "../kit";
+import ProductCard, { Stars, Thumb } from "./ProductCard";
 import { goToShop, useShop } from "./store";
-
-const ASKS = ["Running shoes for flat feet under $120", "A quiet laptop for college", "Gift for him under $200", "Skincare for oily skin"];
 
 // ── Hero ────────────────────────────────────────────────────────────────────
 export function Hero() {
-  const { add, view } = useShop();
-  const [front, setFront] = useState<ModelId>("p1");
-  const it = ITEMS.find((i) => i.model === front)!;
+  const [q, setQ] = useState("");
   return (
     <section id="top" className="relative overflow-hidden">
-      <div className="pointer-events-none absolute -right-40 -top-40 h-[44rem] w-[44rem] rounded-full bg-[#f9a8d4]/40 blur-3xl" />
-      <div className="pointer-events-none absolute -left-40 bottom-0 h-[30rem] w-[30rem] rounded-full bg-lilac/15 blur-3xl" />
-      <Wrap className="relative grid items-center gap-4 pb-8 pt-8 lg:min-h-[calc(100svh-150px)] lg:grid-cols-[0.9fr_1.1fr] lg:pt-4">
-        <div className="relative z-10">
-          <motion.p initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="inline-flex items-center gap-2 rounded-full bg-white px-3 py-1 text-[0.8rem] text-plum/70 ring-1 ring-plum/10">
-            <span className="h-2 w-2 rounded-full bg-emerald" /> 2.4M products · 10 departments · delivery tomorrow
+      <div className="pointer-events-none absolute -right-48 -top-48 h-[46rem] w-[46rem] rounded-full bg-[#f9a8d4]/35 blur-3xl" />
+      <div className="pointer-events-none absolute -left-40 top-40 h-[30rem] w-[30rem] rounded-full bg-lilac/10 blur-3xl" />
+      <Wrap className="relative grid items-center gap-10 pb-10 pt-10 lg:grid-cols-[1fr_1fr] lg:pb-16 lg:pt-14">
+        <div>
+          <motion.p initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="inline-flex items-center gap-2 rounded-full border border-white bg-white/70 px-3 py-1 text-[0.8rem] text-plum/70 backdrop-blur">
+            <span className="h-2 w-2 rounded-full bg-emerald" /> Your personal shopping agent · 2.4M products
           </motion.p>
-          <motion.h1 initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.9, ease, delay: 0.05 }} className="mt-5 font-display text-[clamp(2.8rem,6.2vw,5.6rem)] leading-[0.92]">
-            The whole store, <em className="text-berry">found by asking.</em>
+          <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, ease, delay: 0.05 }} className="mt-5 font-display text-[clamp(2.6rem,5.4vw,4.8rem)] leading-[0.95]">
+            Tell it what you need. <em className="text-berry">It does the shopping.</em>
           </motion.h1>
-          <motion.p initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.9, ease, delay: 0.15 }} className="mt-5 max-w-[32rem] text-[1.08rem] text-plum/70">
-            Browse every department like any great shop — or say what you need in one sentence. Aisle finds it, compares it, sizes it and fills your cart. You press pay.
+          <motion.p initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, ease, delay: 0.15 }} className="mt-5 max-w-[31rem] text-[1.05rem] text-plum/70">
+            Aisle searches the whole store, compares the best three with reasons, picks your size and fills the cart. Nothing is paid until you confirm.
           </motion.p>
-          <div className="mt-6 flex flex-wrap gap-2">
-            {ASKS.map((a) => (
-              <button key={a} onClick={() => openAssistant("chat", a)} className="inline-flex min-h-[38px] cursor-pointer items-center gap-1.5 rounded-full bg-white px-3.5 text-[0.85rem] ring-1 ring-plum/10 hover:ring-berry">
-                <Sparkles size={13} className="text-berry" /> {a}
+          <motion.form
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease, delay: 0.22 }}
+            onSubmit={(e) => {
+              e.preventDefault();
+              openAssistant("chat", q || undefined);
+            }}
+            className="mt-7 flex max-w-[34rem] items-center rounded-2xl border border-white bg-white/80 p-1.5 shadow-[0_20px_50px_-30px_rgba(124,22,72,0.5)] backdrop-blur-xl"
+          >
+            <Sparkles size={18} className="ml-3 shrink-0 text-berry" />
+            <input value={q} onChange={(e) => setQ(e.target.value)} aria-label="Ask Aisle" placeholder="e.g. a light laptop for college under $900" className="h-11 min-w-0 flex-1 bg-transparent px-3 outline-none placeholder:text-plum/40" />
+            <button className="flex h-11 cursor-pointer items-center gap-1.5 rounded-xl bg-plum px-4 text-[0.9rem] font-medium text-white hover:bg-berry">
+              Ask <ArrowRight size={15} />
+            </button>
+          </motion.form>
+          <div className="mt-5 flex flex-wrap gap-x-6 gap-y-2 text-[0.85rem] text-plum/60">
+            <span className="inline-flex items-center gap-1.5"><Truck size={15} className="text-emerald" /> Delivery tomorrow</span>
+            <span className="inline-flex items-center gap-1.5"><ShieldCheck size={15} className="text-emerald" /> You confirm every payment</span>
+            <span className="inline-flex items-center gap-1.5"><Tag size={15} className="text-emerald" /> Coupons found for you</span>
+          </div>
+        </div>
+        <motion.div initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 1, ease }} className="relative mx-auto w-full max-w-[560px]">
+          <div className="grid grid-cols-[1.15fr_1fr] gap-3">
+            <div className="row-span-2 overflow-hidden rounded-[28px] shadow-[0_40px_80px_-40px_rgba(42,15,31,0.6)]">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/banners/happy.webp" alt="A shopper with bags" className="h-full min-h-[420px] w-full object-cover" />
+            </div>
+            <div className="overflow-hidden rounded-[22px]">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/products/sho/cloudline.webp" alt="Running shoe" className="aspect-square w-full object-cover" />
+            </div>
+            <div className="overflow-hidden rounded-[22px]">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/products/wat/atlas.webp" alt="Chronograph watch" className="aspect-square w-full object-cover" />
+            </div>
+          </div>
+          <motion.div animate={{ y: [0, -6, 0] }} transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }} className="glass absolute -left-4 top-8 w-[15rem] rounded-2xl p-3 sm:-left-10">
+            <p className="flex items-center gap-1.5 text-[0.72rem] uppercase tracking-[0.14em] text-berry">
+              <Sparkles size={12} /> Aisle agent
+            </p>
+            <p className="mt-1 text-[0.86rem]">Found 3 running shoes for flat feet under $120 — in 12 s.</p>
+          </motion.div>
+          <motion.div animate={{ y: [0, 6, 0] }} transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }} className="glass absolute -bottom-5 right-4 flex items-center gap-2 rounded-2xl px-3 py-2.5">
+            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald text-white">
+              <Check size={16} />
+            </span>
+            <span className="text-[0.84rem]">
+              Coupon <b>RUN10</b> applied · −$11
+            </span>
+          </motion.div>
+        </motion.div>
+      </Wrap>
+    </section>
+  );
+}
+
+// ── The agent workstation ──────────────────────────────────────────────────
+type Pick = { id: string; why: string; arrives: string; fit: string };
+const SCENARIOS: { label: string; q: string; filters: string[]; scanned: number; noun: string; picks: Pick[]; coupon?: { code: string; pct: number } }[] = [
+  {
+    label: "Running shoes",
+    q: "Running shoes for flat feet, under $120, here before Saturday. I'm a UK 9.",
+    filters: ["Footwear", "Running", "Flat feet", "≤ $120", "UK 9 in stock", "Arrives by Sat"],
+    scanned: 6180,
+    noun: "running shoes",
+    coupon: { code: "RUN10", pct: 10 },
+    picks: [
+      { id: "sho-stride", why: "Firm arch support and a wide fit — the best match for flat feet in budget.", arrives: "Thu", fit: "UK 9 wide · 86% sure" },
+      { id: "sho-cloudline", why: "The most stable midsole under $110; reviewers with flat feet rate it 4.6.", arrives: "Fri", fit: "Runs true · UK 9" },
+      { id: "sho-tempo", why: "Lightest of the three — good if your arches are only mildly flat.", arrives: "Thu", fit: "Runs small · take UK 9.5" },
+    ],
+  },
+  {
+    label: "Headphones",
+    q: "Noise-cancelling headphones for long flights, under $300.",
+    filters: ["Audio", "Over-ear", "Active noise cancelling", "≤ $300", "Battery 30 h+"],
+    scanned: 2431,
+    noun: "headphones",
+    picks: [
+      { id: "aud-quiet", why: "The strongest noise cancelling we sell — engine drone almost disappears.", arrives: "Tomorrow", fit: "30 h battery · foldable" },
+      { id: "aud-hush", why: "About 85% as quiet for half the price; light on long wear.", arrives: "Tomorrow", fit: "35 h battery" },
+      { id: "aud-sand", why: "40 h battery and soft pads — the comfiest for 12-hour flights.", arrives: "Thu", fit: "40 h battery" },
+    ],
+  },
+  {
+    label: "Gift for dad",
+    q: "A watch for my dad's 60th, under $250, gift-wrapped.",
+    filters: ["Watches", "Men's", "≤ $250", "Gift wrap", "Rated 4.5+"],
+    scanned: 1874,
+    noun: "watches",
+    coupon: { code: "GIFT5", pct: 5 },
+    picks: [
+      { id: "wat-atlas", why: "A classic chronograph with a sapphire crystal; the most re-gifted watch on Aisle.", arrives: "Wed", fit: "Wrapped free · card included" },
+      { id: "wat-regatta", why: "Blue dial and gold case — dressier, and arrives in a gift box.", arrives: "Thu", fit: "Gift box included" },
+      { id: "wat-pilot", why: "Easy to read, luminous hands — great if he wears it every day.", arrives: "Wed", fit: "Wrapped free" },
+    ],
+  },
+];
+const STEPS = ["Ask", "Search", "Compare", "Cart", "You confirm"];
+
+export function AgentDesk() {
+  const { add, setCartOpen } = useShop();
+  const [si, setSi] = useState(0);
+  const [step, setStep] = useState(0);
+  const [typed, setTyped] = useState(0);
+  const [count, setCount] = useState(0);
+  const [pick, setPick] = useState(0);
+  const [held, setHeld] = useState(false); // the visitor took over: stop auto-advancing
+  const [placed, setPlaced] = useState(false);
+  const box = useRef<HTMLDivElement>(null);
+  const [inView, setInView] = useState(false);
+  const s = SCENARIOS[si]!;
+
+  useEffect(() => {
+    const io = new IntersectionObserver(([e]) => setInView(!!e?.isIntersecting), { threshold: 0.3 });
+    if (box.current) io.observe(box.current);
+    return () => io.disconnect();
+  }, []);
+
+  const start = (i: number) => {
+    setSi(i);
+    setStep(0);
+    setTyped(0);
+    setCount(0);
+    setPick(0);
+    setHeld(false);
+    setPlaced(false);
+  };
+
+  // Type the request, then walk the steps on a timer until the confirm step.
+  useEffect(() => {
+    if (!inView || held) return;
+    if (step === 0) {
+      if (typed < s.q.length) {
+        const t = setTimeout(() => setTyped((n) => Math.min(s.q.length, n + 2)), 28);
+        return () => clearTimeout(t);
+      }
+      const t = setTimeout(() => setStep(1), 600);
+      return () => clearTimeout(t);
+    }
+    if (step === 1) {
+      if (count < s.scanned) {
+        const t = setTimeout(() => setCount((c) => Math.min(s.scanned, c + Math.ceil(s.scanned / 30))), 40);
+        return () => clearTimeout(t);
+      }
+      const t = setTimeout(() => setStep(2), 700);
+      return () => clearTimeout(t);
+    }
+    if (step === 2 || step === 3) {
+      const t = setTimeout(() => setStep((x) => x + 1), step === 2 ? 3600 : 2600);
+      return () => clearTimeout(t);
+    }
+  }, [inView, held, step, typed, count, s]);
+
+  const chosen = item(s.picks[pick]!.id)!;
+  const discount = s.coupon ? Math.round((chosen.price * s.coupon.pct) / 100) : 0;
+  const total = chosen.price - discount;
+  const go = (n: number) => {
+    setHeld(true);
+    if (n >= 1) setTyped(s.q.length);
+    if (n >= 1) setCount(s.scanned);
+    setStep(n);
+  };
+
+  const thread = [
+    { me: true, text: s.q.slice(0, typed) || "…" },
+    step >= 1 && { me: false, text: `Searching ${s.noun} that match all ${s.filters.length} of your needs…` },
+    step >= 2 && { me: false, text: `${s.scanned.toLocaleString("en-US")} checked. Here are the best three, with why.` },
+    step >= 3 && { me: false, text: `${chosen.name} is in your cart${s.coupon ? ` — I applied ${s.coupon.code}` : ""}.` },
+    step >= 4 && { me: false, text: placed ? "Order placed. Tracking will come to WhatsApp." : "Everything is ready. I'll wait for you to confirm." },
+  ].filter(Boolean) as { me: boolean; text: string }[];
+
+  return (
+    <section id="agent" className="relative py-16 lg:py-20">
+      <Wrap>
+        <div className="flex flex-wrap items-end justify-between gap-6">
+          <div className="max-w-[40rem]">
+            <p className="text-[0.78rem] font-medium uppercase tracking-[0.2em] text-berry">The agent workstation</p>
+            <h2 className="mt-3 font-display text-[clamp(2.2rem,4.4vw,3.8rem)] leading-[0.98]">
+              From one sentence to a ready cart — <em className="text-berry">you stay in charge.</em>
+            </h2>
+          </div>
+          <div className="flex flex-wrap gap-2" role="tablist" aria-label="Try a request">
+            {SCENARIOS.map((x, i) => (
+              <button key={x.label} role="tab" aria-selected={si === i} onClick={() => start(i)} className={`min-h-[40px] cursor-pointer rounded-full px-4 text-[0.88rem] transition-colors ${si === i ? "bg-plum text-white" : "border border-white bg-white/70 backdrop-blur hover:bg-white"}`}>
+                {x.label}
               </button>
             ))}
           </div>
-          <div className="mt-8 flex flex-wrap gap-3">
-            <button onClick={goToShop} className="inline-flex min-h-[52px] cursor-pointer items-center gap-2 rounded-full bg-plum px-7 font-medium text-white hover:bg-berry">
-              Shop all departments <ArrowRight size={17} />
-            </button>
-            <a href="#deals" className="inline-flex min-h-[52px] items-center rounded-full px-6 font-medium ring-1 ring-plum/20 hover:bg-white">
-              Today&apos;s deals
-            </a>
-          </div>
         </div>
-        <div className="relative h-[52svh] min-h-[360px] lg:h-[72svh]">
-          <Showroom onFront={setFront} onOpen={(id) => view(ITEMS.find((i) => i.model === id)!.id)} className="absolute inset-0" />
-            <motion.div
-              key={it.id}
-              initial={{ opacity: 0, y: 14 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.35, ease }}
-              className="glass absolute bottom-3 left-1/2 flex w-[min(25rem,92%)] -translate-x-1/2 items-center gap-3 rounded-2xl p-3"
-            >
-              <div className="min-w-0 flex-1">
-                <p className="flex items-center gap-1.5 text-[0.72rem] uppercase tracking-[0.16em] text-berry">
-                  <Box size={12} /> In 3D · {it.brand}
-                </p>
-                <p className="truncate font-display text-[1.25rem]">{it.name}</p>
-                <p className="text-[0.88rem]">
-                  <b>{money(it.price)}</b> <span className="text-plum/45 line-through">{money(it.mrp)}</span>
-                </p>
+
+        <div ref={box} className="glass-panel mt-8 overflow-hidden rounded-[28px]">
+          {/* Stepper */}
+          <ol className="flex overflow-x-auto border-b border-plum/[0.07] px-3 [scrollbar-width:none] sm:px-5">
+            {STEPS.map((label, i) => (
+              <li key={label} className="shrink-0">
+                <button onClick={() => go(i)} className={`flex min-h-[54px] cursor-pointer items-center gap-2 px-3 text-[0.86rem] transition-colors ${i === step ? "text-plum" : i < step ? "text-emerald" : "text-plum/40"}`}>
+                  <span className={`flex h-6 w-6 items-center justify-center rounded-full text-[0.72rem] font-semibold ${i === step ? "bg-plum text-white" : i < step ? "bg-emerald text-white" : "bg-plum/[0.07]"}`}>{i < step ? <Check size={13} /> : i + 1}</span>
+                  {label}
+                </button>
+              </li>
+            ))}
+          </ol>
+
+          <div className="grid lg:grid-cols-[0.8fr_1.2fr]">
+            {/* Conversation */}
+            <div className="border-b border-plum/[0.07] p-5 lg:border-b-0 lg:border-r">
+              <div className="space-y-2.5">
+                <AnimatePresence initial={false}>
+                  {thread.map((m, i) => (
+                    <motion.div key={`${si}-${i}`} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className={`max-w-[92%] rounded-2xl px-3.5 py-2.5 text-[0.9rem] ${m.me ? "ml-auto rounded-br-md bg-plum text-white" : "rounded-bl-md bg-white text-plum shadow-sm"}`}>
+                      {!m.me && (
+                        <p className="mb-0.5 flex items-center gap-1 text-[0.68rem] uppercase tracking-[0.14em] text-berry">
+                          <Sparkles size={11} /> Aisle
+                        </p>
+                      )}
+                      {m.text}
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
               </div>
-              <button onClick={() => view(it.id)} className="min-h-[42px] cursor-pointer rounded-full px-3.5 text-[0.85rem] ring-1 ring-plum/20 hover:bg-white">
-                View
-              </button>
-              <button onClick={() => add(it.id)} className="min-h-[42px] cursor-pointer rounded-full bg-plum px-4 text-[0.85rem] font-medium text-white hover:bg-berry">
-                Add
-              </button>
-            </motion.div>
+              <div className="mt-5 rounded-2xl border border-plum/[0.08] bg-white/50 p-3 text-[0.8rem] text-plum/60">
+                <p className="flex items-center gap-1.5 font-medium text-plum">
+                  <ShieldCheck size={14} className="text-emerald" /> What the agent may do
+                </p>
+                <p className="mt-1">Search, compare, apply coupons and fill your cart. Paying, refunds and address changes always need your tap.</p>
+              </div>
+            </div>
+
+            {/* Step view */}
+            <div className="min-h-[440px] p-5">
+              <AnimatePresence mode="wait">
+                <motion.div key={`${si}-${step}`} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.3, ease }}>
+                  {step === 0 && (
+                    <div className="flex h-full min-h-[400px] flex-col items-center justify-center text-center">
+                      <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-berry/10 text-berry">
+                        <Sparkles />
+                      </span>
+                      <p className="mt-4 max-w-[24rem] font-display text-[1.6rem] leading-tight">Say it like you’d say it to a friend.</p>
+                      <p className="mt-2 max-w-[24rem] text-[0.9rem] text-plum/60">Budget, size, deadline, who it’s for — the agent turns your sentence into filters and asks only what it can’t work out.</p>
+                    </div>
+                  )}
+                  {step === 1 && (
+                    <div>
+                      <p className="text-[0.78rem] uppercase tracking-[0.16em] text-plum/45">Understood as</p>
+                      <div className="mt-3 flex flex-wrap gap-2">
+                        {s.filters.map((f, i) => (
+                          <motion.span key={f} initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: i * 0.08 }} className="rounded-full border border-berry/20 bg-white px-3 py-1.5 text-[0.85rem]">
+                            {f}
+                          </motion.span>
+                        ))}
+                      </div>
+                      <div className="mt-8 rounded-2xl bg-white/70 p-5">
+                        <p className="flex items-center gap-2 text-[0.85rem] text-plum/60">
+                          <Search size={15} /> Checking catalogue, stock, sizes and reviews
+                        </p>
+                        <p className="mt-2 font-display text-[3rem] leading-none tabular-nums">{count.toLocaleString("en-US")}</p>
+                        <p className="text-[0.85rem] text-plum/55">{s.noun} checked</p>
+                        <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-plum/[0.07]">
+                          <div className="h-full rounded-full bg-gradient-to-r from-berry to-lilac transition-[width] duration-100" style={{ width: `${(count / s.scanned) * 100}%` }} />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  {step === 2 && (
+                    <div>
+                      <p className="text-[0.78rem] uppercase tracking-[0.16em] text-plum/45">Best three · tap one to choose</p>
+                      <div className="mt-3 grid grid-cols-3 gap-2 sm:gap-3">
+                        {s.picks.map((p, i) => {
+                          const it = item(p.id)!;
+                          return (
+                            <button
+                              key={p.id}
+                              onClick={() => {
+                                setPick(i);
+                                setHeld(true);
+                              }}
+                              className={`cursor-pointer overflow-hidden rounded-2xl border bg-white text-left transition-all ${pick === i ? "border-berry shadow-[0_16px_40px_-20px_rgba(190,24,93,0.55)]" : "border-plum/[0.08] hover:border-plum/20"}`}
+                            >
+                              <div className="relative aspect-[4/3] overflow-hidden bg-petal">
+                                <Thumb it={it} />
+                                {i === 0 && <span className="absolute left-2 top-2 rounded-full bg-emerald px-2 py-0.5 text-[0.68rem] font-semibold text-white">Best match</span>}
+                              </div>
+                              <div className="p-2 sm:p-3">
+                                <p className="line-clamp-2 text-[0.8rem] font-medium sm:line-clamp-1 sm:text-[0.88rem]">{it.name}</p>
+                                <p className="mt-0.5 text-[0.95rem] font-semibold">{money(it.price)}</p>
+                                <p className="mt-1.5 hidden text-[0.76rem] leading-snug text-plum/60 sm:block">{p.why}</p>
+                              </div>
+                            </button>
+                          );
+                        })}
+                      </div>
+                      <table className="mt-4 w-full text-[0.8rem]">
+                        <tbody className="divide-y divide-plum/[0.07]">
+                          {[
+                            ["Rating", (p: Pick) => <Stars r={item(p.id)!.rating} n={item(p.id)!.reviews} />],
+                            ["Arrives", (p: Pick) => p.arrives],
+                            ["Fit / notes", (p: Pick) => p.fit],
+                          ].map(([k, f]) => (
+                            <tr key={k as string}>
+                              <td className="py-2 pr-2 text-plum/50">{k as string}</td>
+                              {s.picks.map((p, i) => (
+                                <td key={p.id} className={`py-2 ${pick === i ? "font-medium text-plum" : "text-plum/70"}`}>
+                                  {(f as (p: Pick) => React.ReactNode)(p)}
+                                </td>
+                              ))}
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                      <button onClick={() => go(3)} className="mt-4 inline-flex min-h-[44px] cursor-pointer items-center gap-2 rounded-full bg-plum px-5 text-[0.88rem] font-medium text-white hover:bg-berry">
+                        Put {chosen.name.split(" ").slice(0, 2).join(" ")} in the cart <ArrowRight size={15} />
+                      </button>
+                    </div>
+                  )}
+                  {(step === 3 || step === 4) && (
+                    <div className="grid gap-5 sm:grid-cols-[1fr_1fr]">
+                      <div className="overflow-hidden rounded-2xl bg-white">
+                        <div className="aspect-[4/3] bg-petal">
+                          <Thumb it={chosen} />
+                        </div>
+                        <div className="p-4">
+                          <p className="text-[0.7rem] uppercase tracking-[0.14em] text-plum/45">{chosen.brand}</p>
+                          <p className="font-medium">{chosen.name}</p>
+                          <p className="mt-1 text-[0.82rem] text-plum/60">{s.picks[pick]!.fit}</p>
+                        </div>
+                      </div>
+                      <div className="flex flex-col">
+                        <dl className="space-y-2 rounded-2xl bg-white/70 p-4 text-[0.9rem]">
+                          <div className="flex justify-between"><dt className="text-plum/60">Item</dt><dd>{money(chosen.price)}</dd></div>
+                          {s.coupon && (
+                            <div className="flex justify-between text-emerald"><dt>Coupon {s.coupon.code}</dt><dd>−{money(discount)}</dd></div>
+                          )}
+                          <div className="flex justify-between"><dt className="text-plum/60">Delivery</dt><dd>Free · {s.picks[pick]!.arrives}</dd></div>
+                          <div className="flex justify-between border-t border-plum/10 pt-2 text-[1.1rem] font-semibold"><dt>Total</dt><dd>{money(total)}</dd></div>
+                        </dl>
+                        <p className="mt-3 flex items-center gap-1.5 text-[0.8rem] text-plum/55">
+                          <Clock size={13} /> Home address · card ending 4242 · slot 10–12
+                        </p>
+                        {step === 3 ? (
+                          <button onClick={() => go(4)} className="mt-auto min-h-[48px] cursor-pointer rounded-full bg-plum font-medium text-white hover:bg-berry">
+                            Review & confirm
+                          </button>
+                        ) : placed ? (
+                          <div className="mt-auto rounded-2xl bg-emerald/10 p-4 text-[0.9rem] text-emerald">
+                            <p className="flex items-center gap-2 font-medium">
+                              <Check size={17} /> Order placed — demo, nothing charged.
+                            </p>
+                          </div>
+                        ) : (
+                          <div className="mt-auto space-y-2">
+                            <button onClick={() => setPlaced(true)} className="flex min-h-[50px] w-full cursor-pointer items-center justify-center gap-2 rounded-full bg-emerald font-medium text-white hover:brightness-105">
+                              <ShieldCheck size={17} /> Confirm & pay {money(total)}
+                            </button>
+                            <button
+                              onClick={() => {
+                                add(chosen.id);
+                                setCartOpen(true);
+                              }}
+                              className="flex min-h-[44px] w-full cursor-pointer items-center justify-center gap-2 rounded-full border border-plum/15 text-[0.88rem] hover:bg-white"
+                            >
+                              <ShoppingBag size={15} /> Put it in my real cart instead
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </motion.div>
+              </AnimatePresence>
+            </div>
+          </div>
         </div>
       </Wrap>
     </section>
   );
 }
 
-// ── Promo banners: real photos with scroll parallax ─────────────────────────
-function Banner({ src, kicker, title, cta, onClick, className = "", tall = false }: { src: string; kicker: string; title: string; cta: string; onClick(): void; className?: string; tall?: boolean }) {
+// ── The shelf: department tabs, one compact row, "View all" in a drawer ─────
+export function Shelf() {
+  const { dept, setDept, query, setQuery } = useShop();
+  const [all, setAll] = useState(false);
+  const row = useRef<HTMLDivElement>(null);
+  const key = dept === "all" ? "deals" : dept;
+  const list = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (q) return ITEMS.filter((i) => `${i.name} ${i.brand} ${i.note} ${i.dept}`.toLowerCase().includes(q));
+    return key === "deals" ? DEALS : ITEMS.filter((i) => i.dept === key);
+  }, [key, query]);
+  const title = query ? `Results for “${query}”` : key === "deals" ? "Today's deals" : DEPTS.find((d) => d.key === key)!.name;
+  const scroll = (d: number) => {
+    row.current?.scrollBy({ left: d * row.current.clientWidth * 0.85, behavior: "smooth" });
+  };
+  useEffect(() => {
+    row.current?.scrollTo({ left: 0 });
+  }, [key, query]);
+
+  return (
+    <section id="shop" className="scroll-mt-32 py-14">
+      <Wrap>
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <h2 className="font-display text-[clamp(2rem,4vw,3.2rem)] leading-[0.98]">
+            Shop the <em className="text-berry">store</em>
+          </h2>
+          <div className="flex items-center gap-2">
+            <button onClick={() => scroll(-1)} aria-label="Scroll left" className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border border-white bg-white/70 backdrop-blur hover:bg-white">
+              <ChevronLeft size={18} />
+            </button>
+            <button onClick={() => scroll(1)} aria-label="Scroll right" className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border border-white bg-white/70 backdrop-blur hover:bg-white">
+              <ChevronRight size={18} />
+            </button>
+          </div>
+        </div>
+        <div className="mt-6 flex gap-1.5 overflow-x-auto pb-1 [scrollbar-width:none]" role="tablist" aria-label="Departments">
+          {[{ key: "all" as const, name: "Today's deals", icon: "sparkles" }, ...DEPTS].map((d) => {
+            const Icon = CAT_ICONS[d.icon] ?? Sparkles;
+            const on = !query && dept === d.key;
+            return (
+              <button
+                key={d.key}
+                role="tab"
+                aria-selected={on}
+                onClick={() => {
+                  setQuery("");
+                  setDept(d.key);
+                }}
+                className={`flex min-h-[40px] shrink-0 cursor-pointer items-center gap-1.5 rounded-full px-4 text-[0.88rem] transition-colors ${on ? "bg-plum text-white" : "border border-white bg-white/60 backdrop-blur hover:bg-white"}`}
+              >
+                <Icon size={15} className={on ? "" : "text-berry"} /> {d.name}
+              </button>
+            );
+          })}
+        </div>
+        <div className="glass-panel mt-5 rounded-[28px] p-4 sm:p-5">
+          <div className="mb-4 flex items-center justify-between">
+            <p className="font-medium">
+              {title} <span className="text-plum/45">· {list.length}</span>
+            </p>
+            <button onClick={() => setAll(true)} className="inline-flex cursor-pointer items-center gap-1 text-[0.9rem] font-medium text-berry">
+              View all <ArrowRight size={15} />
+            </button>
+          </div>
+          {list.length === 0 ? (
+            <p className="py-10 text-center text-plum/60">
+              Nothing on the shelf matches. <button onClick={() => openAssistant("chat", query)} className="text-berry underline underline-offset-4">Ask Aisle to search everywhere</button>
+            </p>
+          ) : (
+            <div ref={row} data-lenis-prevent-horizontal className="flex snap-x gap-3 overflow-x-auto pb-1 [scrollbar-width:none]">
+              {list.slice(0, 10).map((it) => (
+                <div key={it.id} className="w-[46vw] max-w-[220px] shrink-0 snap-start sm:w-[220px]">
+                  <ProductCard it={it} />
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </Wrap>
+      <AllDrawer open={all} onClose={() => setAll(false)} title={title} items={list} />
+    </section>
+  );
+}
+
+function AllDrawer({ open, onClose, title, items }: { open: boolean; onClose(): void; title: string; items: Item[] }) {
+  const [sort, setSort] = useState("featured");
+  const sorted = useMemo(() => {
+    const s = [...items];
+    if (sort === "low") s.sort((a, b) => a.price - b.price);
+    if (sort === "high") s.sort((a, b) => b.price - a.price);
+    if (sort === "rated") s.sort((a, b) => b.rating - a.rating);
+    if (sort === "off") s.sort((a, b) => off(b) - off(a));
+    return s;
+  }, [items, sort]);
+  useEffect(() => {
+    if (!open) return;
+    const k = (e: KeyboardEvent) => e.key === "Escape" && onClose();
+    window.addEventListener("keydown", k);
+    return () => window.removeEventListener("keydown", k);
+  }, [open, onClose]);
+  return (
+    <AnimatePresence>
+      {open && (
+        <motion.div className="fixed inset-0 z-[65]" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+          <div onClick={onClose} className="absolute inset-0 bg-plum/40 backdrop-blur-sm" />
+          <motion.aside
+            role="dialog"
+            aria-modal="true"
+            aria-label={title}
+            data-lenis-prevent
+            initial={{ x: "100%" }}
+            animate={{ x: 0 }}
+            exit={{ x: "100%" }}
+            transition={{ duration: 0.45, ease }}
+            className="absolute right-0 top-0 flex h-full w-full max-w-[820px] flex-col bg-[#fffafd]"
+          >
+            <div className="flex items-center justify-between gap-3 border-b border-plum/10 px-5 py-4">
+              <h2 className="font-display text-[1.7rem]">
+                {title} <span className="font-sans text-[1rem] text-plum/45">({items.length})</span>
+              </h2>
+              <div className="flex items-center gap-2">
+                <select aria-label="Sort" value={sort} onChange={(e) => setSort(e.target.value)} className="min-h-[40px] cursor-pointer rounded-full border border-plum/15 bg-white px-3 text-[0.85rem]">
+                  <option value="featured">Featured</option>
+                  <option value="low">Price: low to high</option>
+                  <option value="high">Price: high to low</option>
+                  <option value="rated">Top rated</option>
+                  <option value="off">Biggest discount</option>
+                </select>
+                <button onClick={onClose} aria-label="Close" className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full hover:bg-petal">
+                  <X size={18} />
+                </button>
+              </div>
+            </div>
+            <div className="grid flex-1 grid-cols-2 content-start gap-3 overflow-y-auto p-5 sm:grid-cols-3 lg:grid-cols-4">
+              {sorted.map((it) => (
+                <ProductCard key={it.id} it={it} />
+              ))}
+            </div>
+          </motion.aside>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+}
+
+// ── Promo banners: real photos with gentle scroll parallax ──────────────────
+function Banner({ src, kicker, title, cta, onClick, tall = false }: { src: string; kicker: string; title: string; cta: string; onClick(): void; tall?: boolean }) {
   const ref = useRef<HTMLButtonElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
-  const y = useTransform(scrollYProgress, [0, 1], ["-8%", "8%"]);
+  const y = useTransform(scrollYProgress, [0, 1], ["-6%", "6%"]);
   return (
-    <button ref={ref} onClick={onClick} className={`group relative cursor-pointer overflow-hidden rounded-3xl text-left text-white ${tall ? "min-h-[420px]" : "min-h-[200px]"} ${className}`}>
-      <motion.img style={{ y, scale: 1.18 }} src={src} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover transition-[filter] duration-700 group-hover:brightness-110" />
-      <div className="absolute inset-0 bg-gradient-to-t from-plum/85 via-plum/25 to-transparent" />
+    <button ref={ref} onClick={onClick} className={`group relative cursor-pointer overflow-hidden rounded-[26px] text-left text-white ${tall ? "min-h-[380px]" : "min-h-[180px]"}`}>
+      <motion.img style={{ y, scale: 1.14 }} src={src} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover" />
+      <div className="absolute inset-0 bg-gradient-to-t from-plum/85 via-plum/20 to-transparent" />
       <div className="absolute inset-x-0 bottom-0 p-6">
-        <p className="text-[0.75rem] uppercase tracking-[0.2em] text-white/75">{kicker}</p>
-        <p className={`mt-1 font-display leading-[0.98] ${tall ? "text-[clamp(2rem,3.6vw,3.2rem)]" : "text-[1.7rem]"}`}>{title}</p>
-        <span className="mt-3 inline-flex items-center gap-1.5 text-[0.9rem] font-medium">
+        <p className="text-[0.72rem] uppercase tracking-[0.2em] text-white/75">{kicker}</p>
+        <p className={`mt-1 font-display leading-[0.98] ${tall ? "text-[clamp(1.9rem,3.2vw,2.8rem)]" : "text-[1.55rem]"}`}>{title}</p>
+        <span className="mt-3 inline-flex items-center gap-1.5 text-[0.88rem] font-medium">
           {cta} <ArrowRight size={15} className="transition-transform group-hover:translate-x-1" />
         </span>
       </div>
@@ -104,332 +575,21 @@ function Banner({ src, kicker, title, cta, onClick, className = "", tall = false
 }
 
 export function Promos() {
-  const { setDept } = useShop();
-  const go = (d: DeptKey) => () => (setDept(d), goToShop());
+  const { setDept, setQuery } = useShop();
+  const go = (d: (typeof DEPTS)[number]["key"]) => () => {
+    setQuery("");
+    setDept(d);
+    goToShop();
+  };
   return (
-    <section className="py-6">
+    <section className="pb-14">
       <Wrap className="grid gap-4 md:grid-cols-[1.4fr_1fr]">
-        <Banner tall src="/banners/happy.webp" kicker="The autumn edit" title="Layers, knits and denim — up to 30% off" cta="Shop fashion" onClick={go("fashion")} />
+        <Banner tall src="/banners/coat.webp" kicker="The autumn edit" title="Layers, knits and denim — up to 30% off" cta="Shop fashion" onClick={go("fashion")} />
         <div className="grid gap-4">
           <Banner src="/banners/bags.webp" kicker="Gifts, wrapped free" title="Watches they'll keep" cta="Shop watches" onClick={go("watches")} />
           <Banner src="/banners/window.webp" kicker="New season" title="Runners & court classics" cta="Shop footwear" onClick={go("footwear")} />
         </div>
       </Wrap>
-    </section>
-  );
-}
-
-// ── Departments: photo tiles that tilt in 3D, the picture floating above the card ──
-function DeptTile({ d, i }: { d: (typeof DEPTS)[number]; i: number }) {
-  const { setDept } = useShop();
-  const ref = useRef<HTMLButtonElement>(null);
-  const mx = useMotionValue(0), my = useMotionValue(0);
-  const rx = useSpring(my, { stiffness: 200, damping: 18 }), ry = useSpring(mx, { stiffness: 200, damping: 18 });
-  const Icon = CAT_ICONS[d.icon] ?? Sparkles;
-  const count = ITEMS.filter((x) => x.dept === d.key).length;
-  return (
-    <Rise delay={(i % 5) * 0.05}>
-      <div style={{ perspective: 800 }}>
-        <motion.button
-          ref={ref}
-          onPointerMove={(e) => {
-            const r = ref.current!.getBoundingClientRect();
-            mx.set(((e.clientX - r.left) / r.width - 0.5) * 16);
-            my.set(-((e.clientY - r.top) / r.height - 0.5) * 16);
-          }}
-          onPointerLeave={() => (mx.set(0), my.set(0))}
-          onClick={() => (setDept(d.key), goToShop())}
-          style={{ rotateX: rx, rotateY: ry, transformStyle: "preserve-3d" }}
-          className="group relative block w-full cursor-pointer rounded-3xl bg-white p-2.5 text-left ring-1 ring-plum/[0.08]"
-        >
-          <div style={{ transform: "translateZ(40px)" }} className="aspect-[4/3] overflow-hidden rounded-2xl bg-petal shadow-[0_20px_40px_-24px_rgba(124,22,72,0.5)]">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={d.cover} alt="" loading="lazy" className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110" />
-          </div>
-          <div style={{ transform: "translateZ(24px)" }} className="flex items-center gap-2.5 px-1.5 pb-1 pt-3">
-            <span className="flex h-9 w-9 items-center justify-center rounded-full bg-petal text-berry">
-              <Icon size={17} />
-            </span>
-            <span className="min-w-0">
-              <span className="block font-medium leading-tight">{d.name}</span>
-              <span className="block truncate text-[0.78rem] text-plum/55">
-                {d.blurb} · {count}
-              </span>
-            </span>
-          </div>
-        </motion.button>
-      </div>
-    </Rise>
-  );
-}
-
-export function Departments() {
-  return (
-    <section id="departments" className="py-16">
-      <Wrap>
-        <div className="flex flex-wrap items-end justify-between gap-4">
-          <h2 className="font-display text-[clamp(2.2rem,4.4vw,3.8rem)] leading-[0.95]">
-            Shop by <em className="text-berry">department</em>
-          </h2>
-          <button onClick={goToShop} className="inline-flex cursor-pointer items-center gap-1.5 text-[0.95rem] font-medium text-berry">
-            See everything <ArrowRight size={16} />
-          </button>
-        </div>
-        <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
-          {DEPTS.map((d, i) => (
-            <DeptTile key={d.key} d={d} i={i} />
-          ))}
-        </div>
-      </Wrap>
-    </section>
-  );
-}
-
-// ── Deals of the day ────────────────────────────────────────────────────────
-function Countdown() {
-  const [left, setLeft] = useState("");
-  useEffect(() => {
-    const tick = () => {
-      const now = new Date(), end = new Date(now);
-      end.setHours(24, 0, 0, 0);
-      const s = Math.floor((end.getTime() - now.getTime()) / 1000);
-      setLeft([Math.floor(s / 3600), Math.floor((s % 3600) / 60), s % 60].map((n) => String(n).padStart(2, "0")).join(":"));
-    };
-    tick();
-    const t = setInterval(tick, 1000);
-    return () => clearInterval(t);
-  }, []);
-  return <span className="font-mono tabular-nums">{left}</span>;
-}
-
-export function Deals() {
-  const { add, view } = useShop();
-  const row = useRef<HTMLDivElement>(null);
-  const scroll = (d: number) => row.current?.scrollBy({ left: d * row.current.clientWidth * 0.8, behavior: "smooth" });
-  return (
-    <section id="deals" className="bg-plum py-16 text-white">
-      <Wrap>
-        <div className="flex flex-wrap items-end justify-between gap-4">
-          <div>
-            <p className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-[0.85rem]">
-              <Timer size={15} className="text-[#f9a8d4]" /> Ends in <Countdown />
-            </p>
-            <h2 className="mt-3 font-display text-[clamp(2.2rem,4.4vw,3.8rem)] leading-[0.95]">
-              Deals of the <em className="text-[#f9a8d4]">day</em>
-            </h2>
-          </div>
-          <div className="flex gap-2">
-            <button onClick={() => scroll(-1)} aria-label="Previous deals" className="flex h-11 w-11 cursor-pointer items-center justify-center rounded-full ring-1 ring-white/25 hover:bg-white/10">
-              <ChevronLeft size={18} />
-            </button>
-            <button onClick={() => scroll(1)} aria-label="More deals" className="flex h-11 w-11 cursor-pointer items-center justify-center rounded-full ring-1 ring-white/25 hover:bg-white/10">
-              <ChevronRight size={18} />
-            </button>
-          </div>
-        </div>
-        <div ref={row} data-lenis-prevent-horizontal className="mt-8 flex snap-x gap-4 overflow-x-auto pb-2 [scrollbar-width:none]">
-          {DEALS.map((it) => (
-            <div key={it.id} className="w-[220px] shrink-0 snap-start sm:w-[250px]">
-              <button onClick={() => view(it.id)} className="relative block aspect-square w-full cursor-pointer overflow-hidden rounded-2xl bg-white" aria-label={it.name}>
-                <Thumb it={it} />
-                <span className="absolute left-2.5 top-2.5 rounded-full bg-berry px-2.5 py-1 text-[0.8rem] font-semibold">−{off(it)}%</span>
-              </button>
-              <p className="mt-3 truncate font-medium">{it.name}</p>
-              <div className="mt-1 flex items-center justify-between">
-                <p>
-                  <b className="text-[1.1rem]">{money(it.price)}</b> <span className="text-[0.85rem] text-white/45 line-through">{money(it.mrp)}</span>
-                </p>
-                <button onClick={() => add(it.id)} className="min-h-[36px] cursor-pointer rounded-full bg-white px-3.5 text-[0.82rem] font-medium text-plum hover:bg-[#f9a8d4]">
-                  Add
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-      </Wrap>
-    </section>
-  );
-}
-
-// ── Catalogue with filters ──────────────────────────────────────────────────
-const SORTS = {
-  featured: "Featured",
-  low: "Price: low to high",
-  high: "Price: high to low",
-  rated: "Top rated",
-  off: "Biggest discount",
-} as const;
-type Sort = keyof typeof SORTS;
-
-export function Catalog() {
-  const { dept, setDept, query, setQuery } = useShop();
-  const [sort, setSort] = useState<Sort>("featured");
-  const [maxPrice, setMaxPrice] = useState(2000);
-  const [minRating, setMinRating] = useState(0);
-  const [fast, setFast] = useState(false);
-  const [only3d, setOnly3d] = useState(false);
-  const [panel, setPanel] = useState(false);
-
-  const list = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    const words = q.split(/\s+/).filter((w) => w.length > 1);
-    const r = ITEMS.filter(
-      (i) =>
-        (dept === "all" || i.dept === dept) &&
-        i.price <= maxPrice &&
-        i.rating >= minRating &&
-        (!fast || i.fast) &&
-        (!only3d || i.model) &&
-        (!words.length || words.every((w) => `${i.name} ${i.brand} ${i.note} ${i.dept}`.toLowerCase().includes(w))),
-    );
-    const s = [...r];
-    if (sort === "low") s.sort((a, b) => a.price - b.price);
-    if (sort === "high") s.sort((a, b) => b.price - a.price);
-    if (sort === "rated") s.sort((a, b) => b.rating - a.rating || b.reviews - a.reviews);
-    if (sort === "off") s.sort((a, b) => off(b) - off(a));
-    return s;
-  }, [dept, query, sort, maxPrice, minRating, fast, only3d]);
-
-  const reset = () => {
-    setDept("all");
-    setQuery("");
-    setMaxPrice(2000);
-    setMinRating(0);
-    setFast(false);
-    setOnly3d(false);
-  };
-  const deptName = dept === "all" ? "All departments" : DEPTS.find((d) => d.key === dept)!.name;
-
-  const filters = (
-    <div className="space-y-7">
-      <div>
-        <p className="text-[0.75rem] font-medium uppercase tracking-[0.18em] text-plum/50">Department</p>
-        <ul className="mt-2 space-y-0.5">
-          {[{ key: "all" as const, name: "All departments" }, ...DEPTS].map((d) => (
-            <li key={d.key}>
-              <button onClick={() => setDept(d.key)} className={`flex min-h-[34px] w-full cursor-pointer items-center justify-between rounded-lg px-2.5 text-left text-[0.92rem] ${dept === d.key ? "bg-plum text-white" : "hover:bg-petal"}`}>
-                {d.name}
-                <span className={`text-[0.78rem] ${dept === d.key ? "text-white/70" : "text-plum/40"}`}>{d.key === "all" ? ITEMS.length : ITEMS.filter((x) => x.dept === d.key).length}</span>
-              </button>
-            </li>
-          ))}
-        </ul>
-      </div>
-      <div>
-        <label htmlFor="price" className="text-[0.75rem] font-medium uppercase tracking-[0.18em] text-plum/50">
-          Max price · <span className="text-plum">{maxPrice >= 2000 ? "any" : money(maxPrice)}</span>
-        </label>
-        <input id="price" type="range" min={25} max={2000} step={25} value={maxPrice} onChange={(e) => setMaxPrice(+e.target.value)} className="mt-3 w-full accent-[#be185d]" />
-      </div>
-      <div>
-        <p className="text-[0.75rem] font-medium uppercase tracking-[0.18em] text-plum/50">Rating</p>
-        <div className="mt-2 flex gap-2">
-          {[0, 4.5, 4.7].map((r) => (
-            <button key={r} onClick={() => setMinRating(r)} className={`min-h-[34px] cursor-pointer rounded-full px-3 text-[0.85rem] ring-1 ${minRating === r ? "bg-plum text-white ring-plum" : "ring-plum/15 hover:bg-petal"}`}>
-              {r ? `${r}★ & up` : "Any"}
-            </button>
-          ))}
-        </div>
-      </div>
-      <div className="space-y-2.5">
-        {[
-          { v: fast, set: setFast, label: "Arrives tomorrow" },
-          { v: only3d, set: setOnly3d, label: "Has a 3D view" },
-        ].map((f) => (
-          <label key={f.label} className="flex cursor-pointer items-center gap-2.5 text-[0.92rem]">
-            <input type="checkbox" checked={f.v} onChange={(e) => f.set(e.target.checked)} className="h-4 w-4 accent-[#be185d]" />
-            {f.label}
-          </label>
-        ))}
-      </div>
-      <button onClick={reset} className="text-[0.88rem] text-berry underline-offset-4 hover:underline">
-        Clear all filters
-      </button>
-    </div>
-  );
-
-  return (
-    <section id="shop" className="scroll-mt-32 py-16">
-      <Wrap className="max-w-[1320px]">
-        <div className="flex flex-wrap items-end justify-between gap-4">
-          <div>
-            <p className="text-[0.8rem] uppercase tracking-[0.2em] text-plum/50">The shelf</p>
-            <h2 className="mt-1 font-display text-[clamp(2.2rem,4.4vw,3.8rem)] leading-[0.95]">{deptName}</h2>
-          </div>
-          <div className="flex items-center gap-2">
-            <button onClick={() => setPanel(true)} className="inline-flex min-h-[42px] cursor-pointer items-center gap-2 rounded-full px-4 text-[0.9rem] ring-1 ring-plum/15 lg:hidden">
-              <SlidersHorizontal size={16} /> Filters
-            </button>
-            <label className="sr-only" htmlFor="sort">
-              Sort
-            </label>
-            <select id="sort" value={sort} onChange={(e) => setSort(e.target.value as Sort)} className="min-h-[42px] cursor-pointer rounded-full bg-white px-4 text-[0.9rem] ring-1 ring-plum/15 outline-none">
-              {Object.entries(SORTS).map(([k, v]) => (
-                <option key={k} value={k}>
-                  {v}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-        <div className="mt-8 grid gap-8 lg:grid-cols-[230px_1fr]">
-          <aside className="hidden lg:block">
-            <div className="sticky top-36">{filters}</div>
-          </aside>
-          <div>
-            <p className="mb-4 text-[0.9rem] text-plum/60">
-              {list.length} {list.length === 1 ? "product" : "products"}
-              {query && (
-                <>
-                  {" "}
-                  for “<b className="text-plum">{query}</b>”{" "}
-                  <button onClick={() => setQuery("")} className="ml-1 text-berry underline-offset-4 hover:underline">
-                    clear
-                  </button>
-                </>
-              )}
-            </p>
-            {list.length === 0 ? (
-              <div className="rounded-3xl bg-white p-10 text-center ring-1 ring-plum/10">
-                <p className="font-display text-[1.8rem] italic">No exact match on the shelf.</p>
-                <p className="mt-2 text-plum/60">Aisle can search the full 2.4M catalogue for you.</p>
-                <button onClick={() => openAssistant("chat", query || undefined)} className="mt-5 inline-flex min-h-[46px] cursor-pointer items-center gap-2 rounded-full bg-berry px-6 font-medium text-white">
-                  <Sparkles size={16} /> Ask Aisle
-                </button>
-              </div>
-            ) : (
-              <motion.div layout className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 xl:grid-cols-4">
-                <AnimatePresence mode="popLayout">
-                  {list.map((it) => (
-                    <motion.div key={it.id} layout initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.96 }} transition={{ duration: 0.3, ease }}>
-                      <ProductCard it={it} />
-                    </motion.div>
-                  ))}
-                </AnimatePresence>
-              </motion.div>
-            )}
-          </div>
-        </div>
-      </Wrap>
-      <AnimatePresence>
-        {panel && (
-          <motion.div className="fixed inset-0 z-[70] lg:hidden" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-            <div onClick={() => setPanel(false)} className="absolute inset-0 bg-plum/40" />
-            <motion.div data-lenis-prevent initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }} transition={{ duration: 0.4, ease }} className="absolute inset-x-0 bottom-0 max-h-[85svh] overflow-y-auto rounded-t-3xl bg-[#fffafd] p-6">
-              <div className="mb-4 flex items-center justify-between">
-                <p className="font-display text-[1.6rem] italic">Filters</p>
-                <button onClick={() => setPanel(false)} aria-label="Close filters" className="flex h-10 w-10 items-center justify-center rounded-full hover:bg-petal">
-                  <X size={18} />
-                </button>
-              </div>
-              {filters}
-              <button onClick={() => setPanel(false)} className="mt-6 min-h-[48px] w-full rounded-full bg-plum font-medium text-white">
-                Show {list.length} products
-              </button>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </section>
   );
 }

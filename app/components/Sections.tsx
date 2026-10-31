@@ -1,124 +1,11 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { AnimatePresence, animate, motion, useInView, useMotionValueEvent, useScroll } from "motion/react";
+import { AnimatePresence, animate, motion, useInView } from "motion/react";
 import { Check, ShieldCheck } from "lucide-react";
-import { CHANNELS, GUARDRAILS, MERCHANT, SITE, byId } from "../data/site";
+import { CHANNELS, GUARDRAILS, MERCHANT, SITE } from "../data/site";
 import { Rise, RiseWords, Wrap, ease } from "./kit";
-import Bag from "./three/Bag";
 import { PHOTO_CREDIT } from "../data/shop";
-import { useShop } from "./shop/store";
-import { MODEL_CREDITS, productShots, type ModelId } from "./three/products";
-
-/** Product "photos" rendered from the 3D models, once, in the browser. */
-function useShots() {
-  const [shots, setShots] = useState<Record<string, string>>({});
-  useEffect(() => {
-    let live = true;
-    productShots().then((s) => live && setShots(s));
-    return () => {
-      live = false;
-    };
-  }, []);
-  return shots;
-}
-
-function Shot({ id, shots, className = "" }: { id: string; shots: Record<string, string>; className?: string }) {
-  const src = shots[id];
-  return src ? (
-    // eslint-disable-next-line @next/next/no-img-element
-    <img src={src} alt={byId(id).name} draggable={false} className={`select-none object-contain ${className}`} />
-  ) : (
-    <div className={`animate-pulse rounded-full bg-petal ${className}`} />
-  );
-}
-
-const price = (p: string) => Number(p.replace(/[^0-9.]/g, ""));
-
-
-// ── Ask: a conversation that fills a 3D bag as you scroll ───────────────────
-type Line = { who: "you" | "aisle"; text: string; pick?: string; drop?: number };
-const SCRIPT: Line[] = [
-  { who: "you", text: "I'm running my first 10K next month. Gear me up — $350 max." },
-  { who: "aisle", text: "Three things matter for you: shoes for flat feet, a watch to pace you, and water that stays cold." },
-  { who: "aisle", text: "Stride Air, UK 9 wide — 86% sure on the size from your past orders.", pick: "p1", drop: 1 },
-  { who: "you", text: "Add a watch to time my runs." },
-  { who: "aisle", text: "Atlas Chronograph — a stopwatch you can read mid-stride, water-proof to 200 m.", pick: "p3", drop: 2 },
-  { who: "you", text: "And a bottle for the long runs." },
-  { who: "aisle", text: "Trail Steel — cold for 24 h. With RUN10 your total is $302, under budget.", pick: "p9", drop: 3 },
-];
-const BAG_ITEMS: ModelId[] = ["p1", "p3", "p9"];
-
-export function Ask() {
-  const { add, setCartOpen } = useShop();
-  const shots = useShots();
-  const section = useRef<HTMLElement>(null);
-  const { scrollYProgress } = useScroll({ target: section, offset: ["start start", "end end"] });
-  const [step, setStep] = useState(1);
-  useMotionValueEvent(scrollYProgress, "change", (p) => setStep(Math.max(1, Math.min(SCRIPT.length, Math.ceil(p * (SCRIPT.length + 0.6))))));
-  const shown = SCRIPT.slice(0, step);
-  const count = shown.reduce((n, l) => Math.max(n, l.drop ?? 0), 0);
-  const total = BAG_ITEMS.slice(0, count).reduce((s, id) => s + price(byId(id).price), 0);
-  const done = step === SCRIPT.length;
-
-  return (
-    <section id="ask" ref={section} className="relative h-[340vh] bg-plum text-white">
-      <div className="sticky top-0 flex h-screen items-center overflow-hidden">
-        <div className="pointer-events-none absolute right-[10%] top-1/2 h-[40rem] w-[40rem] -translate-y-1/2 rounded-full bg-berry/35 blur-3xl" />
-        <Wrap className="relative grid h-full items-center gap-4 py-20 lg:grid-cols-[1fr_1fr]">
-          <div className="order-2 flex h-full flex-col justify-end lg:order-1 lg:justify-center">
-            <h2 className="mb-6 hidden font-display text-[clamp(2.4rem,4.4vw,4rem)] leading-[0.95] lg:block">
-              One sentence in. <em className="text-[#f9a8d4]">A full bag out.</em>
-            </h2>
-            <div className="flex max-h-[52vh] flex-col justify-end gap-2.5 overflow-hidden">
-              <AnimatePresence initial={false}>
-                {shown.map((l, i) => (
-                  <motion.div
-                    key={i}
-                    layout
-                    initial={{ opacity: 0, y: 20, scale: 0.96 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.4, ease }}
-                    className={`max-w-[88%] rounded-3xl px-4 py-3 text-[0.95rem] ${l.who === "you" ? "self-end rounded-br-md bg-berry" : "self-start rounded-bl-md bg-white text-plum"}`}
-                  >
-                    {l.pick && (
-                      <div className="mb-2 flex items-center gap-3 rounded-2xl bg-petal p-2">
-                        <Shot id={l.pick} shots={shots} className="h-12 w-12" />
-                        <div>
-                          <p className="text-[0.85rem] font-semibold">{byId(l.pick).name}</p>
-                          <p className="text-[0.8rem] text-berry">{byId(l.pick).price} · added to bag</p>
-                        </div>
-                      </div>
-                    )}
-                    {l.text}
-                  </motion.div>
-                ))}
-              </AnimatePresence>
-            </div>
-          </div>
-          <div className="relative order-1 h-[34vh] lg:order-2 lg:h-[70vh]">
-            <Bag items={BAG_ITEMS} count={count} className="absolute inset-0" />
-            <div className="absolute bottom-0 left-1/2 w-[min(22rem,90%)] -translate-x-1/2 rounded-2xl bg-white/10 p-3 text-center backdrop-blur max-lg:hidden">
-              <p className="text-[0.8rem] uppercase tracking-[0.25em] text-white/60">Bag · {count} items</p>
-              <p className="font-display text-[1.8rem]">${done ? (total * 0.9).toFixed(0) : total.toFixed(0)}</p>
-              <AnimatePresence>
-                {done && (
-                  <motion.button initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} onClick={() => {
-                      ["sho-stride", "wat-atlas", "spo-bottle"].forEach((id) => add(id));
-                      setCartOpen(true);
-                    }} className="mt-1 inline-flex min-h-[42px] cursor-pointer items-center gap-2 rounded-full bg-white px-5 text-[0.9rem] font-medium text-plum">
-                    <ShieldCheck size={16} /> You press pay
-                  </motion.button>
-                )}
-              </AnimatePresence>
-            </div>
-          </div>
-        </Wrap>
-      </div>
-    </section>
-  );
-}
 
 // ── For brands ───────────────────────────────────────────────────────────────
 function Count({ to, prefix = "", suffix = "" }: { to: number; prefix?: string; suffix?: string }) {
@@ -245,9 +132,9 @@ export function Trust() {
 function Credits() {
   return (
     <details className="relative inline-block">
-      <summary className="cursor-pointer list-none underline-offset-4 hover:underline">Photo & 3D credits</summary>
+      <summary className="cursor-pointer list-none underline-offset-4 hover:underline">Photo credits</summary>
       <ul className="absolute bottom-7 right-0 z-10 w-[min(26rem,85vw)] space-y-1 rounded-2xl bg-white p-4 text-left text-[0.8rem] text-plum/75 shadow-xl ring-1 ring-plum/10">
-        {[...MODEL_CREDITS, PHOTO_CREDIT].map((c) => (
+        {[PHOTO_CREDIT].map((c) => (
           <li key={c}>{c}</li>
         ))}
       </ul>

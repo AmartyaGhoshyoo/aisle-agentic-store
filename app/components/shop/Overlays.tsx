@@ -1,6 +1,6 @@
 "use client";
 
-// The product sheet (3D viewer or photo with depth tilt, quantity, add to cart, ask the agent)
+// The product sheet (HD photo, quantity, add to cart, ask the agent)
 // and the cart drawer (quantities, totals, and an agent-prepared checkout you confirm).
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
@@ -10,7 +10,6 @@ import { openAssistant } from "../assistant/Assistant";
 import { ease } from "../kit";
 import { Stars, Thumb } from "./ProductCard";
 import { useShop } from "./store";
-import Viewer3D from "./Viewer3D";
 
 function useEscape(open: boolean, close: () => void) {
   useEffect(() => {
@@ -68,7 +67,7 @@ export function ProductSheet() {
               <X size={18} />
             </button>
             <div className="relative aspect-square bg-[radial-gradient(circle_at_50%_40%,#fff,#fce7f3_75%)] md:aspect-auto md:min-h-[560px]">
-              {it.model ? <Viewer3D model={it.model} className="absolute inset-0" /> : <Thumb it={it} className="absolute inset-0" />}
+              <Thumb it={it} className="absolute inset-0" />
             </div>
             <div className="flex flex-col p-6 sm:p-8">
               <p className="text-[0.75rem] uppercase tracking-[0.18em] text-plum/50">

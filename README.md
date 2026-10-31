@@ -6,18 +6,12 @@ finds three picks, compares them, gets your size right and fills the cart. You p
 - **A real shop:** sticky header with search (filters the shelf as you type, or hand the sentence to the
   agent), a cart with a live count, and a department bar (Mobiles, Laptops, Audio, Watches, Footwear,
   Fashion, Beauty, Home, Kitchen, Sports)
-- **3D showroom hero:** the six products that have real 3D models stand on lit plinths in a ring that turns,
-  casts soft shadows and reacts to the cursor and scroll; click one to open it
-- **Promo banners** (real photos with scroll parallax), **department tiles** that tilt in 3D, **deals of the
-  day** with a countdown
-- **The shelf:** 84 products with real photos (free Unsplash), filters (department, max price, rating,
-  arrives tomorrow, has a 3D view), sorting, and cards that tilt under the cursor
-- **Product sheet:** drag-to-turn 3D viewer for model products (photo otherwise), quantity, add to cart,
-  "Ask Aisle about this", more from the department
-- **Cart drawer:** quantities, free-delivery progress, an agent-found coupon, and checkout the agent prepares
-  but you confirm (demo — nothing is charged). The cart is remembered in this browser
-- **Ask:** a conversation builds as you scroll and each pick drops into a 3D bag; "You press pay" puts them
-  in the real cart
+- **Agent workstation (the centre of the page):** pick a request and watch the agent work in five steps —
+  Ask → Search (your sentence becomes filters; thousands of products checked) → Compare (best three with
+  reasons, side by side; tap to choose) → Cart (coupon applied) → **You confirm**. Nothing is paid until you tap.
+- **The shelf:** department tabs with one compact row each (no endless list); "View all" opens a drawer
+  with the full department and sorting. Search in the header filters it.
+- **Product sheet** with HD photo, quantity and "Ask Aisle about this"; **cart drawer** with agent-prepared checkout
 - **For brands:** the store owner's copilot with an approvals queue
 - **Chat + voice assistant** (Zovak web widget) in demo mode
 - Blush + berry + emerald; Bodoni Moda + Jost

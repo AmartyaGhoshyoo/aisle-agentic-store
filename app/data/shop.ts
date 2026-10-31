@@ -1,7 +1,5 @@
 // Aisle's demo catalogue: departments and products. Product photos are free Unsplash photos
-// (cropped square, WebP) in /public/products/<dept>/; six products also have a real 3D model
-// (see components/three/products.ts) that opens in the product viewer.
-import type { ModelId } from "../components/three/products";
+// (cropped square, WebP) in /public/products/<dept>/.
 
 export type DeptKey = "mobiles" | "laptops" | "audio" | "watches" | "footwear" | "fashion" | "beauty" | "home" | "kitchen" | "sports";
 
@@ -27,14 +25,12 @@ export interface Item {
   mrp: number;
   rating: number;
   reviews: number;
-  /** Photo path, or null when the product is shown as a render of its 3D model. */
-  img: string | null;
-  model?: ModelId;
+  img: string;
   fast?: boolean;
   note: string;
 }
 
-type Row = [id: string, name: string, brand: string, price: number, mrp: number, rating: number, reviews: number, img: string | null, note: string, extra?: Partial<Item>];
+type Row = [id: string, name: string, brand: string, price: number, mrp: number, rating: number, reviews: number, img: string, note: string, extra?: Partial<Item>];
 
 const rows: Record<DeptKey, Row[]> = {
   mobiles: [
@@ -61,7 +57,6 @@ const rows: Record<DeptKey, Row[]> = {
     ["lap-slate", "Slate 14 · Space Grey", "Folio", 749, 849, 4.4, 3650, "lap/slate", "Student pick"],
   ],
   audio: [
-    ["aud-speaker", "Boom Retro Speaker", "Boom", 149, 189, 4.6, 4021, null, "24 h battery · 3D view", { model: "p2", fast: true }],
     ["aud-hush", "Hush ANC · Black", "Hush", 149, 199, 4.7, 18342, "aud/hush", "Noise-cancelling", { fast: true }],
     ["aud-quiet", "Quiet 1000 · Black", "Hush", 279, 349, 4.8, 22140, "aud/quiet", "Best ANC on flights"],
     ["aud-halo-rose", "Halo Max · Rose", "Halo", 449, 549, 4.6, 6720, "aud/halo-rose", "Spatial audio"],
@@ -72,7 +67,7 @@ const rows: Record<DeptKey, Row[]> = {
     ["aud-aria", "Aria Leather On-Ear", "Studio", 219, 259, 4.4, 980, "aud/aria", "Chrome & leather"],
   ],
   watches: [
-    ["wat-atlas", "Atlas Chronograph", "Atlas", 189, 249, 4.7, 7302, "wat/atlas", "Sapphire · 200 m · 3D view", { model: "p3", fast: true }],
+    ["wat-atlas", "Atlas Chronograph", "Atlas", 189, 249, 4.7, 7302, "wat/atlas", "Sapphire · 200 m", { fast: true }],
     ["wat-racing", "Racing Chrono · Red", "Atlas", 229, 279, 4.6, 2130, "wat/racing", "Tachymeter bezel"],
     ["wat-aurum", "Aurum Link · Gold", "Aurum", 259, 329, 4.5, 1840, "wat/aurum", "Steel, gold PVD"],
     ["wat-regatta", "Regatta Blue Dial", "Aurum", 239, 289, 4.6, 990, "wat/regatta", "Gift-boxed"],
@@ -84,7 +79,7 @@ const rows: Record<DeptKey, Row[]> = {
     ["wat-rose", "Rosé 34 Ceramic", "Aurum", 279, 349, 4.7, 640, "wat/rose", "Ceramic + rose gold"],
   ],
   footwear: [
-    ["sho-stride", "Stride Air Runner", "Stride", 112, 140, 4.7, 11203, "sho/stride", "Wide fit · 3D view", { model: "p1", fast: true }],
+    ["sho-stride", "Stride Air Runner", "Stride", 112, 140, 4.7, 11203, "sho/stride", "Wide fit · firm arch", { fast: true }],
     ["sho-cloudline", "Cloudline 3 · Coral", "Stride", 104, 130, 4.6, 6120, "sho/cloudline", "Soft, stable midsole", { fast: true }],
     ["sho-tempo", "Tempo Lite", "Stride", 96, 120, 4.5, 3304, "sho/tempo", "Daily trainer"],
     ["sho-night", "Night Trainer", "Forma", 89, 110, 4.4, 1980, "sho/night", "Gym & short runs"],
@@ -97,8 +92,6 @@ const rows: Record<DeptKey, Row[]> = {
     ["sho-minimal", "Minimal Low · White", "Deck", 69, 85, 4.5, 3010, "sho/minimal", "Vegan leather"],
   ],
   fashion: [
-    ["fas-sunglasses", "Halo Sunglasses", "Halo", 74, 99, 4.5, 3402, null, "Polarised · 3D view", { model: "p5", fast: true }],
-    ["fas-suitcase", "Voyager Leather Case", "Voyager", 189, 249, 4.6, 1203, null, "Cabin size · 3D view", { model: "p7" }],
     ["fas-autumn", "Autumn Layers Set", "Field", 128, 170, 4.4, 640, "fas/autumn-set", "Knit, shirt, boots look"],
     ["fas-denim", "Weekend Denim Set", "Field", 139, 180, 4.5, 820, "fas/denim-set", "Shirt, blazer, jeans"],
     ["fas-linen", "Linen Overshirt · White", "Coast", 58, 72, 4.6, 2210, "fas/linen", "Runs small — size up", { fast: true }],
@@ -134,7 +127,6 @@ const rows: Record<DeptKey, Row[]> = {
     ["kit-fridge", "French-door Fridge 520 L", "Frost", 1299, 1499, 4.5, 870, "kit/fridge", "Quiet 36 dB"],
   ],
   sports: [
-    ["spo-bottle", "Trail Steel Bottle", "Trail", 34, 42, 4.7, 8230, null, "Cold for 24 h · 3D view", { model: "p9", fast: true }],
     ["spo-hex", "Hex Dumbbells 2 × 10 kg", "Iron", 79, 99, 4.6, 5120, "spo/hex", "Rubber-coated"],
     ["spo-bands", "Resistance Band Kit", "Iron", 29, 39, 4.5, 9340, "spo/bands", "5 levels + handles", { fast: true }],
     ["spo-rack", "Dumbbell Rack Set", "Iron", 399, 499, 4.7, 610, "spo/rack", "2–20 kg, 10 pairs"],
@@ -153,7 +145,7 @@ export const ITEMS: Item[] = (Object.keys(rows) as DeptKey[]).flatMap((dept) =>
     mrp,
     rating,
     reviews,
-    img: img ? `/products/${img}.webp` : null,
+    img: `/products/${img}.webp`,
     note,
     ...extra,
   })),

@@ -1,7 +1,7 @@
-import { Ask, Brands, Footer, Trust } from "./components/Sections";
+import { Brands, Footer, Trust } from "./components/Sections";
 import Header from "./components/shop/Header";
 import { CartDrawer, ProductSheet } from "./components/shop/Overlays";
-import { Catalog, Deals, Departments, Hero, Promos } from "./components/shop/Storefront";
+import { AgentDesk, Hero, Promos, Shelf } from "./components/shop/Storefront";
 
 export default function Home() {
   return (
@@ -9,11 +9,9 @@ export default function Home() {
       <Header />
       <main>
         <Hero />
+        <AgentDesk />
+        <Shelf />
         <Promos />
-        <Departments />
-        <Deals />
-        <Catalog />
-        <Ask />
         <Brands />
         <Trust />
       </main>
