@@ -1,13 +1,13 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { AnimatePresence, animate, motion, useInView, useMotionValueEvent, useScroll, useTransform } from "motion/react";
-import { Check, ShieldCheck, Sparkles } from "lucide-react";
-import { CATEGORIES, CHANNELS, GUARDRAILS, LOOKS, MERCHANT, SITE, byId } from "../data/site";
-import { CAT_ICONS } from "./catIcons";
-import { openAssistant } from "./assistant/Assistant";
+import { AnimatePresence, animate, motion, useInView, useMotionValueEvent, useScroll } from "motion/react";
+import { Check, ShieldCheck } from "lucide-react";
+import { CHANNELS, GUARDRAILS, MERCHANT, SITE, byId } from "../data/site";
 import { Rise, RiseWords, Wrap, ease } from "./kit";
 import Bag from "./three/Bag";
+import { PHOTO_CREDIT } from "../data/shop";
+import { useShop } from "./shop/store";
 import { MODEL_CREDITS, productShots, type ModelId } from "./three/products";
 
 /** Product "photos" rendered from the 3D models, once, in the browser. */
@@ -35,68 +35,6 @@ function Shot({ id, shots, className = "" }: { id: string; shots: Record<string,
 
 const price = (p: string) => Number(p.replace(/[^0-9.]/g, ""));
 
-export function Nav() {
-  const { scrollY } = useScroll();
-  const shadow = useTransform(scrollY, [0, 120], ["0 0 0 rgba(0,0,0,0)", "0 12px 40px -20px rgba(124,22,72,0.35)"]);
-  return (
-    <div className="fixed inset-x-0 top-3 z-50 px-3">
-      <motion.header style={{ boxShadow: shadow, background: "rgba(255,250,253,0.88)" }} className="glass mx-auto flex h-14 max-w-[1180px] items-center justify-between rounded-full pl-6 pr-2">
-        <a href="#shop" className="font-display text-[1.6rem] italic leading-none">
-          aisle<span className="text-berry">.</span>
-        </a>
-        <nav className="hidden gap-8 text-[0.95rem] text-plum/70 md:flex">
-          <a href="#categories" className="hover:text-plum">Categories</a>
-          <a href="#ask" className="hover:text-plum">Ask</a>
-          <a href="#stylist" className="hover:text-plum">Stylist</a>
-          <a href="#brands" className="hover:text-plum">For brands</a>
-        </nav>
-        <button onClick={() => openAssistant("chat")} className="min-h-[42px] cursor-pointer rounded-full bg-plum px-5 text-[0.92rem] font-medium text-white">
-          Ask Aisle
-        </button>
-      </motion.header>
-    </div>
-  );
-}
-
-// ── Categories: the whole store, each with a question the agent can answer ──
-export function Categories() {
-  return (
-    <section id="categories" className="relative py-24">
-      <Wrap>
-        <div className="flex flex-wrap items-end justify-between gap-6">
-          <h2 className="max-w-[40rem] font-display text-[clamp(2.4rem,5vw,4.4rem)] leading-[0.95]">
-            Every aisle. <em className="text-berry">One assistant.</em>
-          </h2>
-          <p className="max-w-[24rem] text-plum/60">Phones to groceries — 16 departments, millions of products. Tap a question to see how Aisle shops each one.</p>
-        </div>
-        <div className="mt-12 grid grid-cols-2 gap-3 md:grid-cols-4 lg:grid-cols-6">
-          {CATEGORIES.map((c, i) => {
-            const Icon = CAT_ICONS[c.icon] ?? Sparkles;
-            const big = i === 0 || i === 3 || i === 7 || i === 12;
-            return (
-              <Rise key={c.key} delay={(i % 6) * 0.05} className={big ? "col-span-2 row-span-2" : ""}>
-                <motion.button
-                  whileHover={{ y: -6 }}
-                  onClick={() => openAssistant("chat", c.ask)}
-                  className="group relative flex h-full min-h-[9.5rem] w-full cursor-pointer flex-col overflow-hidden rounded-3xl p-4 text-left text-white"
-                  style={{ background: c.tone }}
-                >
-                  <Icon className={`absolute -bottom-4 -right-4 opacity-25 transition-transform duration-700 group-hover:-rotate-12 group-hover:scale-110 ${big ? "h-48 w-48" : "h-24 w-24"}`} strokeWidth={1.2} />
-                  <span className="grid h-10 w-10 place-items-center rounded-2xl bg-white/20 backdrop-blur">
-                    <Icon size={20} />
-                  </span>
-                  <span className={`mt-auto font-display leading-none ${big ? "text-[2.2rem]" : "text-[1.35rem]"}`}>{c.name}</span>
-                  <span className="mt-1 text-[0.78rem] text-white/80">{c.count} products</span>
-                  {big && <span className="mt-3 w-fit rounded-full bg-white/90 px-3 py-1.5 text-[0.82rem] text-plum">“{c.ask}” →</span>}
-                </motion.button>
-              </Rise>
-            );
-          })}
-        </div>
-      </Wrap>
-    </section>
-  );
-}
 
 // ── Ask: a conversation that fills a 3D bag as you scroll ───────────────────
 type Line = { who: "you" | "aisle"; text: string; pick?: string; drop?: number };
@@ -112,6 +50,7 @@ const SCRIPT: Line[] = [
 const BAG_ITEMS: ModelId[] = ["p1", "p3", "p9"];
 
 export function Ask() {
+  const { add, setCartOpen } = useShop();
   const shots = useShots();
   const section = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({ target: section, offset: ["start start", "end end"] });
@@ -165,7 +104,10 @@ export function Ask() {
               <p className="font-display text-[1.8rem]">${done ? (total * 0.9).toFixed(0) : total.toFixed(0)}</p>
               <AnimatePresence>
                 {done && (
-                  <motion.button initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} onClick={() => openAssistant("chat", "Check out")} className="mt-1 inline-flex min-h-[42px] cursor-pointer items-center gap-2 rounded-full bg-white px-5 text-[0.9rem] font-medium text-plum">
+                  <motion.button initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} onClick={() => {
+                      ["sho-stride", "wat-atlas", "spo-bottle"].forEach((id) => add(id));
+                      setCartOpen(true);
+                    }} className="mt-1 inline-flex min-h-[42px] cursor-pointer items-center gap-2 rounded-full bg-white px-5 text-[0.9rem] font-medium text-plum">
                     <ShieldCheck size={16} /> You press pay
                   </motion.button>
                 )}
@@ -174,74 +116,6 @@ export function Ask() {
           </div>
         </Wrap>
       </div>
-    </section>
-  );
-}
-
-// ── Stylist: pick a vibe, the agent builds the look ─────────────────────────
-export function Stylist() {
-  const shots = useShots();
-  const [li, setLi] = useState(0);
-  const look = LOOKS[li]!;
-  const total = look.ids.reduce((s, id) => s + price(byId(id).price), 0);
-  const spots = [
-    { left: "4%", top: "8%", rotate: -8, size: "w-[46%]" },
-    { left: "50%", top: "2%", rotate: 6, size: "w-[40%]" },
-    { left: "28%", top: "46%", rotate: -2, size: "w-[44%]" },
-  ];
-  return (
-    <section id="stylist" className="relative py-28">
-      <Wrap className="grid items-center gap-12 lg:grid-cols-[0.9fr_1.1fr]">
-        <div>
-          <p className="text-[0.75rem] font-medium uppercase tracking-[0.3em] text-berry">The stylist</p>
-          <h2 className="mt-4 font-display text-[clamp(2.6rem,5.4vw,4.8rem)] leading-[0.95]">
-            Name the moment. <em className="text-berry">It builds the look.</em>
-          </h2>
-          <div className="mt-8 flex flex-wrap gap-2">
-            {LOOKS.map((l, i) => (
-              <button key={l.name} onClick={() => setLi(i)} className={`min-h-[44px] cursor-pointer rounded-full px-5 text-[0.95rem] transition-colors ${i === li ? "bg-plum text-white" : "border border-plum/15 hover:bg-white"}`}>
-                {l.name}
-              </button>
-            ))}
-          </div>
-          <AnimatePresence mode="wait">
-            <motion.div key={li} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="mt-8">
-              <p className="font-display text-[1.5rem] italic">“{look.line}”</p>
-              <ul className="mt-4 space-y-1.5 text-plum/75">
-                {look.ids.map((id) => (
-                  <li key={id} className="flex justify-between border-b border-plum/10 py-1.5">
-                    <span>{byId(id).name}</span>
-                    <span>{byId(id).price}</span>
-                  </li>
-                ))}
-              </ul>
-              <div className="mt-5 flex items-center justify-between">
-                <p className="font-display text-[2rem]">${total}</p>
-                <button onClick={() => openAssistant("chat", `Add the ${look.name} look to my cart`)} className="inline-flex min-h-[48px] cursor-pointer items-center gap-2 rounded-full bg-berry px-6 font-medium text-white">
-                  <Sparkles size={16} /> Cart this look
-                </button>
-              </div>
-            </motion.div>
-          </AnimatePresence>
-        </div>
-        <div className="relative aspect-square w-full rounded-[2.5rem] bg-[radial-gradient(circle_at_50%_40%,#ffffff,#fce7f3_70%)]">
-          {look.ids.map((id, i) => (
-            <motion.div
-              key={id}
-              layoutId={`look-${id}`}
-              initial={{ opacity: 0, scale: 0.6 }}
-              animate={{ opacity: 1, scale: 1, rotate: spots[i]!.rotate }}
-              transition={{ type: "spring", stiffness: 120, damping: 16 }}
-              className={`absolute ${spots[i]!.size}`}
-              style={{ left: spots[i]!.left, top: spots[i]!.top }}
-            >
-              <div className="animate-[float_5s_ease-in-out_infinite]" style={{ animationDelay: `${i * 0.6}s` }}>
-                <Shot id={id} shots={shots} className="aspect-square w-full drop-shadow-[0_25px_25px_rgba(91,18,56,0.25)]" />
-              </div>
-            </motion.div>
-          ))}
-        </div>
-      </Wrap>
     </section>
   );
 }
@@ -368,34 +242,12 @@ export function Trust() {
   );
 }
 
-export function Finale() {
-  return (
-    <section className="relative px-3 pb-6">
-      <div className="relative mx-auto max-w-[1240px] overflow-hidden rounded-[2.5rem] bg-berry px-6 py-24 text-center text-white">
-        <div className="pointer-events-none absolute left-1/2 top-full h-[40rem] w-[40rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[conic-gradient(from_0deg,#f9a8d4,#7c3aed,#34d399,#f9a8d4)] opacity-60 blur-3xl" />
-        <h2 className="relative mx-auto max-w-[52rem] font-display text-[clamp(2.8rem,7vw,6rem)] leading-[0.95]">
-          Tell it what you need. <em>It&apos;s on it.</em>
-        </h2>
-        <p className="relative mx-auto mt-6 max-w-[32rem] text-white/75">Try the Aisle agent by chat or voice. A demo with a sample catalogue — nothing is really charged.</p>
-        <div className="relative mt-10 flex flex-wrap justify-center gap-3">
-          <button onClick={() => openAssistant("voice")} className="min-h-[52px] cursor-pointer rounded-full bg-white px-7 font-medium text-plum">
-            Talk to Aisle
-          </button>
-          <a href={`mailto:${SITE.email}?subject=Aisle for my store`} className="flex min-h-[52px] items-center rounded-full px-7 font-medium ring-1 ring-white/40 hover:bg-white/10">
-            Get Aisle for your brand
-          </a>
-        </div>
-      </div>
-    </section>
-  );
-}
-
 function Credits() {
   return (
     <details className="relative inline-block">
-      <summary className="cursor-pointer list-none underline-offset-4 hover:underline">3D model credits</summary>
+      <summary className="cursor-pointer list-none underline-offset-4 hover:underline">Photo & 3D credits</summary>
       <ul className="absolute bottom-7 right-0 z-10 w-[min(26rem,85vw)] space-y-1 rounded-2xl bg-white p-4 text-left text-[0.8rem] text-plum/75 shadow-xl ring-1 ring-plum/10">
-        {MODEL_CREDITS.map((c) => (
+        {[...MODEL_CREDITS, PHOTO_CREDIT].map((c) => (
           <li key={c}>{c}</li>
         ))}
       </ul>

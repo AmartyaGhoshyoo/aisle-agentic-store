@@ -1,20 +1,25 @@
-import Hero from "./components/Hero";
-import { Ask, Categories, Brands, Finale, Footer, Nav, Stylist, Trust } from "./components/Sections";
+import { Ask, Brands, Footer, Trust } from "./components/Sections";
+import Header from "./components/shop/Header";
+import { CartDrawer, ProductSheet } from "./components/shop/Overlays";
+import { Catalog, Deals, Departments, Hero, Promos } from "./components/shop/Storefront";
 
 export default function Home() {
   return (
     <>
-      <Nav />
+      <Header />
       <main>
         <Hero />
-        <Categories />
+        <Promos />
+        <Departments />
+        <Deals />
+        <Catalog />
         <Ask />
-        <Stylist />
         <Brands />
         <Trust />
-        <Finale />
       </main>
       <Footer />
+      <ProductSheet />
+      <CartDrawer />
     </>
   );
 }
