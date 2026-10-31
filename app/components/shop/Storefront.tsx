@@ -3,7 +3,7 @@
 // The storefront: a calm hero, the agent workstation (ask → search → compare → cart → you
 // confirm), one compact shelf per department with "View all", and three promo banners.
 import { useEffect, useMemo, useRef, useState } from "react";
-import { AnimatePresence, motion, useScroll, useTransform } from "motion/react";
+import { AnimatePresence, motion, useMotionValueEvent, useScroll, useTransform, type MotionValue } from "motion/react";
 import { ArrowRight, Check, ChevronLeft, ChevronRight, Clock, Search, ShieldCheck, ShoppingBag, Sparkles, Tag, Truck, X } from "lucide-react";
 import { DEALS, DEPTS, ITEMS, item, money, off, type Item } from "../../data/shop";
 import { openAssistant } from "../assistant/Assistant";
@@ -15,8 +15,14 @@ import { goToShop, useShop } from "./store";
 // ── Hero ────────────────────────────────────────────────────────────────────
 export function Hero() {
   const [q, setQ] = useState("");
+  const heroRef = useRef<HTMLElement>(null);
+  const { scrollYProgress: hp } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
+  const yBig = useTransform(hp, [0, 1], ["0%", "-10%"]);
+  const yA = useTransform(hp, [0, 1], ["0%", "-34%"]);
+  const yB = useTransform(hp, [0, 1], ["0%", "-20%"]);
+  const rot = useTransform(hp, [0, 1], [0, -4]);
   return (
-    <section id="top" className="relative overflow-hidden">
+    <section id="top" ref={heroRef} className="relative overflow-hidden">
       <div className="pointer-events-none absolute -right-48 -top-48 h-[46rem] w-[46rem] rounded-full bg-[#f9a8d4]/35 blur-3xl" />
       <div className="pointer-events-none absolute -left-40 top-40 h-[30rem] w-[30rem] rounded-full bg-lilac/10 blur-3xl" />
       <Wrap className="relative grid items-center gap-10 pb-10 pt-10 lg:grid-cols-[1fr_1fr] lg:pb-16 lg:pt-14">
@@ -54,18 +60,18 @@ export function Hero() {
         </div>
         <motion.div initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 1, ease }} className="relative mx-auto w-full max-w-[560px]">
           <div className="grid grid-cols-[1.15fr_1fr] gap-3">
-            <div className="row-span-2 overflow-hidden rounded-[28px] shadow-[0_40px_80px_-40px_rgba(42,15,31,0.6)]">
+            <motion.div style={{ y: yBig, rotate: rot }} className="row-span-2 overflow-hidden rounded-[28px] shadow-[0_40px_80px_-40px_rgba(42,15,31,0.6)]">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src="/banners/happy.webp" alt="A shopper with bags" className="h-full min-h-[420px] w-full object-cover" />
-            </div>
-            <div className="overflow-hidden rounded-[22px]">
+            </motion.div>
+            <motion.div style={{ y: yA }} className="overflow-hidden rounded-[22px] shadow-[0_30px_60px_-36px_rgba(42,15,31,0.6)]">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src="/products/sho/cloudline.webp" alt="Running shoe" className="aspect-square w-full object-cover" />
-            </div>
-            <div className="overflow-hidden rounded-[22px]">
+            </motion.div>
+            <motion.div style={{ y: yB }} className="overflow-hidden rounded-[22px] shadow-[0_30px_60px_-36px_rgba(42,15,31,0.6)]">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src="/products/wat/atlas.webp" alt="Chronograph watch" className="aspect-square w-full object-cover" />
-            </div>
+            </motion.div>
           </div>
           <motion.div animate={{ y: [0, -6, 0] }} transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }} className="glass absolute -left-4 top-8 w-[15rem] rounded-2xl p-3 sm:-left-10">
             <p className="flex items-center gap-1.5 text-[0.72rem] uppercase tracking-[0.14em] text-berry">
@@ -83,6 +89,57 @@ export function Hero() {
           </motion.div>
         </motion.div>
       </Wrap>
+    </section>
+  );
+}
+
+// ── Gallery: three tilted rows of HD product photos that slide as you scroll ──
+function GalleryRow({ ids, p, dir }: { ids: string[]; p: MotionValue<number>; dir: 1 | -1 }) {
+  const x = useTransform(p, [0, 1], dir > 0 ? ["-28%", "2%"] : ["2%", "-28%"]);
+  return (
+    <motion.div style={{ x }} className="flex gap-4">
+      {[...ids, ...ids].map((id, i) => {
+        const it = item(id)!;
+        return (
+          <div key={i} className="w-[220px] shrink-0 overflow-hidden rounded-[20px] bg-white shadow-[0_24px_50px_-30px_rgba(42,15,31,0.55)] sm:w-[260px]">
+            <div className="aspect-[4/3]">
+              <Thumb it={it} />
+            </div>
+            <div className="flex items-center justify-between px-3 py-2 text-[0.8rem]">
+              <span className="truncate">{it.name}</span>
+              <b className="ml-2 shrink-0">{money(it.price)}</b>
+            </div>
+          </div>
+        );
+      })}
+    </motion.div>
+  );
+}
+const ROWS = [
+  ["sho-court-red", "wat-aurum", "aud-halo-rose", "bea-vitc", "lap-air13", "hom-saffron", "fas-knit", "mob-pure"],
+  ["kit-espresso", "sho-skate", "wat-regatta", "aud-quiet", "hom-orb", "bea-night", "lap-raptor", "fas-linen"],
+  ["mob-nova-red", "spo-hex", "wat-racing", "sho-cloudline", "hom-terra", "aud-hush", "bea-ritual", "lap-studio15"],
+];
+export function Gallery() {
+  const ref = useRef<HTMLElement>(null);
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
+  const title = useTransform(scrollYProgress, [0.2, 0.5], [0.94, 1]);
+  return (
+    <section ref={ref} className="relative overflow-hidden py-20">
+      <div className="pointer-events-none relative z-10 mx-auto max-w-[44rem] px-5 text-center">
+        <motion.h2 style={{ scale: title }} className="font-display text-[clamp(2.2rem,5vw,4.4rem)] leading-[0.95]">
+          2.4 million products. <em className="text-berry">One sentence away.</em>
+        </motion.h2>
+      </div>
+      <div className="mt-12 [perspective:1400px]">
+        <div className="flex flex-col gap-4 [transform:rotateX(18deg)_rotateZ(-5deg)_scale(1.08)] [transform-style:preserve-3d]">
+          {ROWS.map((r, i) => (
+            <GalleryRow key={i} ids={r} p={scrollYProgress} dir={i % 2 ? -1 : 1} />
+          ))}
+        </div>
+      </div>
+      <div className="pointer-events-none absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-[#fdf2f8] to-transparent" />
+      <div className="pointer-events-none absolute inset-y-0 right-0 w-24 bg-gradient-to-l from-[#fdf2f8] to-transparent" />
     </section>
   );
 }
@@ -134,15 +191,33 @@ const STEPS = ["Ask", "Search", "Compare", "Cart", "You confirm"];
 export function AgentDesk() {
   const { add, setCartOpen } = useShop();
   const [si, setSi] = useState(0);
-  const [step, setStep] = useState(0);
-  const [typed, setTyped] = useState(0);
-  const [count, setCount] = useState(0);
+  const [stepT, setStep] = useState(0);
+  const [typedT, setTyped] = useState(0);
+  const [countT, setCount] = useState(0);
   const [pick, setPick] = useState(0);
   const [held, setHeld] = useState(false); // the visitor took over: stop auto-advancing
   const [placed, setPlaced] = useState(false);
   const box = useRef<HTMLDivElement>(null);
+  const sec = useRef<HTMLElement>(null);
   const [inView, setInView] = useState(false);
   const s = SCENARIOS[si]!;
+
+  // Wide screens: the section pins and the scroll walks the five steps. Phones: a timer does it.
+  const [wide, setWide] = useState(false);
+  useEffect(() => {
+    const on = () => setWide(window.innerWidth >= 1024 && window.innerHeight >= 680);
+    on();
+    window.addEventListener("resize", on);
+    return () => window.removeEventListener("resize", on);
+  }, []);
+  const { scrollYProgress } = useScroll({ target: sec, offset: ["start start", "end end"] });
+  const [sp, setSp] = useState(0);
+  useMotionValueEvent(scrollYProgress, "change", (p) => setSp(Math.round(p * 500) / 500));
+  const x = Math.min(0.9999, Math.max(0, sp)) * 5;
+  const stepS = Math.floor(x), subS = x % 1;
+  const step = wide ? stepS : stepT;
+  const typed = wide ? (stepS > 0 ? s.q.length : Math.round(s.q.length * Math.min(1, subS * 1.3))) : typedT;
+  const count = wide ? (stepS > 1 ? s.scanned : stepS === 1 ? Math.round(s.scanned * Math.min(1, subS * 1.25)) : 0) : countT;
 
   useEffect(() => {
     const io = new IntersectionObserver(([e]) => setInView(!!e?.isIntersecting), { threshold: 0.3 });
@@ -162,7 +237,7 @@ export function AgentDesk() {
 
   // Type the request, then walk the steps on a timer until the confirm step.
   useEffect(() => {
-    if (!inView || held) return;
+    if (wide || !inView || held) return;
     if (step === 0) {
       if (typed < s.q.length) {
         const t = setTimeout(() => setTyped((n) => Math.min(s.q.length, n + 2)), 28);
@@ -183,12 +258,18 @@ export function AgentDesk() {
       const t = setTimeout(() => setStep((x) => x + 1), step === 2 ? 3600 : 2600);
       return () => clearTimeout(t);
     }
-  }, [inView, held, step, typed, count, s]);
+  }, [wide, inView, held, step, typed, count, s]);
 
   const chosen = item(s.picks[pick]!.id)!;
   const discount = s.coupon ? Math.round((chosen.price * s.coupon.pct) / 100) : 0;
   const total = chosen.price - discount;
   const go = (n: number) => {
+    if (wide && sec.current) {
+      const el = sec.current;
+      const top = el.getBoundingClientRect().top + window.scrollY;
+      window.scrollTo({ top: top + ((n + 0.4) / 5) * (el.offsetHeight - window.innerHeight), behavior: "smooth" });
+      return;
+    }
     setHeld(true);
     if (n >= 1) setTyped(s.q.length);
     if (n >= 1) setCount(s.scanned);
@@ -204,14 +285,16 @@ export function AgentDesk() {
   ].filter(Boolean) as { me: boolean; text: string }[];
 
   return (
-    <section id="agent" className="relative py-16 lg:py-20">
+    <section id="agent" ref={sec} className={wide ? "relative h-[520vh]" : "relative py-16 lg:py-20"}>
+      <div className={wide ? "sticky top-[104px] flex h-[calc(100vh-104px)] flex-col justify-center" : ""}>
       <Wrap>
         <div className="flex flex-wrap items-end justify-between gap-6">
           <div className="max-w-[40rem]">
             <p className="text-[0.78rem] font-medium uppercase tracking-[0.2em] text-berry">The agent workstation</p>
-            <h2 className="mt-3 font-display text-[clamp(2.2rem,4.4vw,3.8rem)] leading-[0.98]">
+            <h2 className={`mt-3 font-display leading-[0.98] ${wide ? "text-[clamp(2rem,3vw,2.8rem)]" : "text-[clamp(2.2rem,4.4vw,3.8rem)]"}`}>
               From one sentence to a ready cart — <em className="text-berry">you stay in charge.</em>
             </h2>
+            {wide && <p className="mt-2 text-[0.9rem] text-plum/55">Scroll to move the agent through each step.</p>}
           </div>
           <div className="flex flex-wrap gap-2" role="tablist" aria-label="Try a request">
             {SCENARIOS.map((x, i) => (
@@ -222,7 +305,7 @@ export function AgentDesk() {
           </div>
         </div>
 
-        <div ref={box} className="glass-panel mt-8 overflow-hidden rounded-[28px]">
+        <div ref={box} className={`glass-panel overflow-hidden rounded-[28px] ${wide ? "mt-5" : "mt-8"}`}>
           {/* Stepper */}
           <ol className="flex overflow-x-auto border-b border-plum/[0.07] px-3 [scrollbar-width:none] sm:px-5">
             {STEPS.map((label, i) => (
@@ -235,6 +318,11 @@ export function AgentDesk() {
             ))}
           </ol>
 
+          {wide && (
+            <div className="h-0.5 bg-plum/[0.06]">
+              <motion.div className="h-full origin-left bg-gradient-to-r from-berry to-lilac" style={{ scaleX: scrollYProgress }} />
+            </div>
+          )}
           <div className="grid lg:grid-cols-[0.8fr_1.2fr]">
             {/* Conversation */}
             <div className="border-b border-plum/[0.07] p-5 lg:border-b-0 lg:border-r">
@@ -261,7 +349,7 @@ export function AgentDesk() {
             </div>
 
             {/* Step view */}
-            <div className="min-h-[440px] p-5">
+            <div className={`${wide ? "h-[min(400px,calc(100vh-420px))]" : "h-[440px]"} overflow-y-auto p-5`} data-lenis-prevent>
               <AnimatePresence mode="wait">
                 <motion.div key={`${si}-${step}`} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.3, ease }}>
                   {step === 0 && (
@@ -405,6 +493,7 @@ export function AgentDesk() {
           </div>
         </div>
       </Wrap>
+      </div>
     </section>
   );
 }
