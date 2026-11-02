@@ -102,7 +102,7 @@ export default function FilmHero() {
 
   return (
     <section id="top" ref={section} className="relative h-[420vh]">
-      <div className="sticky top-[104px] h-[calc(100svh-104px)] overflow-hidden bg-[#f2cad3]">
+      <div className="sticky top-[104px] h-[calc(100svh-104px)] overflow-hidden bg-[#f4d2da]">
         <video
           ref={video}
           muted
@@ -111,7 +111,7 @@ export default function FilmHero() {
           poster="/film/poster.jpg"
           disablePictureInPicture
           aria-label="A frosted-glass shopping bag fills with the products the agent picked"
-          className="absolute inset-0 h-full w-full object-cover object-[70%_50%] max-sm:object-[78%_50%]"
+          className="film-vid absolute right-[2vw] top-1/2 aspect-[1284/724] w-[min(62vw,1284px,calc((100svh-104px)*0.92*1284/724))] -translate-y-1/2 max-sm:right-1/2 max-sm:top-[30%] max-sm:w-[118vw] max-sm:translate-x-1/2"
         />
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-[#f7dde3]/80 via-[#f7dde3]/15 to-transparent max-sm:bg-gradient-to-t max-sm:from-[#fdf2f8]/95 max-sm:via-[#fdf2f8]/40" />
         {!ready && (
