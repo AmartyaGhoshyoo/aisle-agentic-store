@@ -1,97 +1,16 @@
 "use client";
 
-// The storefront: a calm hero, the agent workstation (ask → search → compare → cart → you
+// The storefront: the agent workstation (ask → search → compare → cart → you
 // confirm), one compact shelf per department with "View all", and three promo banners.
 import { useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion, useMotionValueEvent, useScroll, useTransform, type MotionValue } from "motion/react";
-import { ArrowRight, Check, ChevronLeft, ChevronRight, Clock, Search, ShieldCheck, ShoppingBag, Sparkles, Tag, Truck, X } from "lucide-react";
+import { ArrowRight, Check, ChevronLeft, ChevronRight, Clock, Search, ShieldCheck, ShoppingBag, Sparkles, X } from "lucide-react";
 import { DEALS, DEPTS, ITEMS, item, money, off, type Item } from "../../data/shop";
 import { openAssistant } from "../assistant/Assistant";
 import { CAT_ICONS } from "../catIcons";
 import { Wrap, ease } from "../kit";
 import ProductCard, { Stars, Thumb } from "./ProductCard";
 import { goToShop, useShop } from "./store";
-
-// ── Hero ────────────────────────────────────────────────────────────────────
-export function Hero() {
-  const [q, setQ] = useState("");
-  const heroRef = useRef<HTMLElement>(null);
-  const { scrollYProgress: hp } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
-  const yBig = useTransform(hp, [0, 1], ["0%", "-10%"]);
-  const yA = useTransform(hp, [0, 1], ["0%", "-34%"]);
-  const yB = useTransform(hp, [0, 1], ["0%", "-20%"]);
-  const rot = useTransform(hp, [0, 1], [0, -4]);
-  return (
-    <section id="top" ref={heroRef} className="relative overflow-hidden">
-      <div className="pointer-events-none absolute -right-48 -top-48 h-[46rem] w-[46rem] rounded-full bg-[#f9a8d4]/35 blur-3xl" />
-      <div className="pointer-events-none absolute -left-40 top-40 h-[30rem] w-[30rem] rounded-full bg-lilac/10 blur-3xl" />
-      <Wrap className="relative grid items-center gap-10 pb-10 pt-10 lg:grid-cols-[1fr_1fr] lg:pb-16 lg:pt-14">
-        <div>
-          <motion.p initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="inline-flex items-center gap-2 rounded-full border border-white bg-white/70 px-3 py-1 text-[0.8rem] text-plum/70 backdrop-blur">
-            <span className="h-2 w-2 rounded-full bg-emerald" /> Your personal shopping agent · 2.4M products
-          </motion.p>
-          <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, ease, delay: 0.05 }} className="mt-5 font-display text-[clamp(2.6rem,5.4vw,4.8rem)] leading-[0.95]">
-            Tell it what you need. <em className="text-berry">It does the shopping.</em>
-          </motion.h1>
-          <motion.p initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, ease, delay: 0.15 }} className="mt-5 max-w-[31rem] text-[1.05rem] text-plum/70">
-            Aisle searches the whole store, compares the best three with reasons, picks your size and fills the cart. Nothing is paid until you confirm.
-          </motion.p>
-          <motion.form
-            initial={{ opacity: 0, y: 14 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, ease, delay: 0.22 }}
-            onSubmit={(e) => {
-              e.preventDefault();
-              openAssistant("chat", q || undefined);
-            }}
-            className="mt-7 flex max-w-[34rem] items-center rounded-2xl border border-white bg-white/80 p-1.5 shadow-[0_20px_50px_-30px_rgba(124,22,72,0.5)] backdrop-blur-xl"
-          >
-            <Sparkles size={18} className="ml-3 shrink-0 text-berry" />
-            <input value={q} onChange={(e) => setQ(e.target.value)} aria-label="Ask Aisle" placeholder="e.g. a light laptop for college under $900" className="h-11 min-w-0 flex-1 bg-transparent px-3 outline-none placeholder:text-plum/40" />
-            <button className="flex h-11 cursor-pointer items-center gap-1.5 rounded-xl bg-plum px-4 text-[0.9rem] font-medium text-white hover:bg-berry">
-              Ask <ArrowRight size={15} />
-            </button>
-          </motion.form>
-          <div className="mt-5 flex flex-wrap gap-x-6 gap-y-2 text-[0.85rem] text-plum/60">
-            <span className="inline-flex items-center gap-1.5"><Truck size={15} className="text-emerald" /> Delivery tomorrow</span>
-            <span className="inline-flex items-center gap-1.5"><ShieldCheck size={15} className="text-emerald" /> You confirm every payment</span>
-            <span className="inline-flex items-center gap-1.5"><Tag size={15} className="text-emerald" /> Coupons found for you</span>
-          </div>
-        </div>
-        <motion.div initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 1, ease }} className="relative mx-auto w-full max-w-[560px]">
-          <div className="grid grid-cols-[1.15fr_1fr] gap-3">
-            <motion.div style={{ y: yBig, rotate: rot }} className="row-span-2 overflow-hidden rounded-[28px] shadow-[0_40px_80px_-40px_rgba(42,15,31,0.6)]">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/banners/happy.webp" alt="A shopper with bags" className="h-full min-h-[420px] w-full object-cover" />
-            </motion.div>
-            <motion.div style={{ y: yA }} className="overflow-hidden rounded-[22px] shadow-[0_30px_60px_-36px_rgba(42,15,31,0.6)]">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/products/sho/cloudline.webp" alt="Running shoe" className="aspect-square w-full object-cover" />
-            </motion.div>
-            <motion.div style={{ y: yB }} className="overflow-hidden rounded-[22px] shadow-[0_30px_60px_-36px_rgba(42,15,31,0.6)]">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/products/wat/atlas.webp" alt="Chronograph watch" className="aspect-square w-full object-cover" />
-            </motion.div>
-          </div>
-          <motion.div animate={{ y: [0, -6, 0] }} transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }} className="glass absolute -left-4 top-8 w-[15rem] rounded-2xl p-3 sm:-left-10">
-            <p className="flex items-center gap-1.5 text-[0.72rem] uppercase tracking-[0.14em] text-berry">
-              <Sparkles size={12} /> Aisle agent
-            </p>
-            <p className="mt-1 text-[0.86rem]">Found 3 running shoes for flat feet under $120 — in 12 s.</p>
-          </motion.div>
-          <motion.div animate={{ y: [0, 6, 0] }} transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }} className="glass absolute -bottom-5 right-4 flex items-center gap-2 rounded-2xl px-3 py-2.5">
-            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald text-white">
-              <Check size={16} />
-            </span>
-            <span className="text-[0.84rem]">
-              Coupon <b>RUN10</b> applied · −$11
-            </span>
-          </motion.div>
-        </motion.div>
-      </Wrap>
-    </section>
-  );
-}
 
 // ── Gallery: three tilted rows of HD product photos that slide as you scroll ──
 function GalleryRow({ ids, p, dir }: { ids: string[]; p: MotionValue<number>; dir: 1 | -1 }) {
